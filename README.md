@@ -1,6 +1,5 @@
 # slides
 
-## Presentations
 
 - [Experimentation Introduction](presentations/experimentation/experimentation-intro.pdf)
 - [Instrumental Variables](presentations/instrument-variables/iv.pdf)
