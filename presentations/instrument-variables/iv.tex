@@ -1,0 +1,724 @@
+\documentclass{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{listings}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+\makeatletter
+\newcommand*{\indep}{%
+  \mathbin{%
+    \mathpalette{\@indep}{}%
+  }%
+}
+\newcommand*{\nindep}{%
+  \mathbin{%                   % The final symbol is a binary math operator
+    \mathpalette{\@indep}{\not}% \mathpalette helps for the adaptation
+                               % of the symbol to the different math styles.
+  }%
+}
+\newcommand*{\@indep}[2]{%
+  % #1: math style
+  % #2: empty or \not
+  \sbox0{$#1\perp\m@th$}%        box 0 contains \perp symbol
+  \sbox2{$#1=$}%                 box 2 for the height of =
+  \sbox4{$#1\vcenter{}$}%        box 4 for the height of the math axis
+  \rlap{\copy0}%                 first \perp
+  \dimen@=\dimexpr\ht2-\ht4-.2pt\relax
+      % The equals symbol is centered around the math axis.
+      % The following equations are used to calculate the
+      % right shift of the second \perp:
+      % [1] ht(equals) - ht(math_axis) = line_width + 0.5 gap
+      % [2] right_shift(second_perp) = line_width + gap
+      % The line width is approximated by the default line width of 0.4pt
+  \kern\dimen@
+  {#2}%
+      % {\not} in case of \nindep;
+      % the braces convert the relational symbol \not to an ordinary
+      % math object without additional horizontal spacing.
+  \kern\dimen@
+  \copy0 %                       second \perp
+} 
+\makeatother
+
+% \usepackage[scale=2]{ccicons}
+% \usepackage{epstopdf}
+% \usepackage{xspace}
+% \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+% \usetheme{metropolis}           % use metropolis theme
+
+\usepackage{changepage}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{textcomp}
+\usepackage{color}
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{pgf,tikz}
+% \usepackage{url}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{dcolumn}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{multirow}
+\usepackage[american]{babel}
+\usepackage{enumerate}
+\usepackage{minted}
+\setminted[r]{fontsize=\scriptsize}
+
+% \renewcommand{\footnotesize}{\scriptsize}
+% \usepackage[american]{babel}
+% \usepackage[absolute,overlay]{textpos}
+
+% % \title{test}
+% \title[]{\texorpdfstring{Examining {\color{blue}SIENA} Model for the Estimation of
+% {\color{red}Selection} and {\color{red}Influence}
+% under {\color{blue}Misspecification}}}
+
+\title[]{Instrumental variables}
+\subtitle{Identification and intuition}
+
+\author[shortname]{Sebastián Daza\inst{1}}
+\institute[shortinst]{
+    \inst{1} Department of Sociology, UW-Madison \\
+}
+
+\date{}
+
+
+\begin{document}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Causal Graphs: Directed Acyclic Graph (DAG)}
+\vspace{-0.1pt}
+\begin{itemize}
+    \item Type of causal graph (nodes and connections)
+    \item To describe qualitative causal relationships among variables = not a full model description
+    \item Directed = arrows indicating the direction of causal influence
+    \item Acyclical = causes don't flow black on themselves
+\end{itemize}
+
+
+\hspace{-22pt}
+\includegraphics[scale=0.20]{figures/basic_dag.png}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Instrumental variables}
+
+\begin{itemize}
+    \item \textbf{Problem}: treatment is not ignorable (omitted bias variable)
+    
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (x) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    % \node[left of=x] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {\scriptsize a} (u) ;	
+    \draw[->, densely dotted, shorten >=.15cm] (x) --  node[above] {{\color{blue} \scriptsize b?}}  (y);
+    \draw[<-, shorten >=.15cm] (x) --  node[left] {\scriptsize c}  (u);
+    \end{tikzpicture}
+    \end{center}
+    
+    \item Instrument could help us to recover $b$
+    \item Quasi-experimental design (experimental analogy)
+    \item No free, cost are additional assumptions (linearity, constant effects), higher standard errors
+    \item If you have a great IV, do it, otherwise do OLS + formal sensitivity analysis, or better do IV + sensitivity analysis
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Instrumental variables: Criteria}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=1.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize b}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize a}  (t);
+    \end{tikzpicture}
+    \end{center}
+    
+    
+\vspace{-15pt}
+Z should be: 
+
+\begin{itemize}
+    \item Independent of U ($Z \indep  U$) = {
+    \color{orange} \textbf{instrument ignorability}} 
+    \item Not independent of T ($Z \nindep T)$ = {\color{orange} \textbf{first stage}}
+    \item $Z$ cannot influence Y  (by any path)  except through $T$ = {\color{orange} \textbf{exclusion restriction}}
+    \item Association between $T$ and $Z$ should be strong (otherwise close to dividing by 0)
+    \vspace{-2pt}
+    \begin{equation*}
+        % wald estimator
+        \beta_{iv} = \frac{Cov(Y,Z)}{Cov(T,Z)} = \frac{ab}{a} = b + 
+        \frac{Cov(e,Z)}{Cov(T,Z)}
+    \end{equation*}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Instrumental variables: Simulation}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=1.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {\scriptsize{0.6}} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.0}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {\scriptsize{0.5}}  (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.5}}  (t);
+    \end{tikzpicture}
+    \end{center}
+    
+\vspace{-20pt}
+\begin{minted}[%
+ breaklines,
+ mathescape,
+ numbersep=5pt,
+ numbersep=5pt,
+ xleftmargin=0pt,
+ ]{r}
+ 
+# SEM
+Y ~ 0.6*U
+T ~ 0.5*Z + 0.5*U
+
+dat = simsem::simulateData(model, sample.nobs = 5000, model.type = "sem", orthogonal = TRUE)
+
+m1 = lm(Y ~ T, data = dat) # naive
+m2 = lm(Y ~ T + Z, data = dat) # bias amplifier!
+# 2SLS by hand
+dat$Th = fitted.values(lm(T ~ Z, data = dat)) 
+m3 = lm(Y ~ Th, dat = dat)
+m4 = ivreg(Y ~ T, ~ Z, data = dat) # 2SLS in R
+m5 = lm(Y ~ T + U, data = dat) # God!
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Simulation}
+
+\begin{columns}
+\begin{column}{0.50\textwidth}
+
+    \hspace{3pt}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=1.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {\scriptsize{0.6}} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.0}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {\scriptsize{0.5}}  (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.5}}  (t);
+    \end{tikzpicture}
+\end{column}
+\begin{column}{0.63\textwidth}  %%<--- here
+$\beta_{iv} = \frac{Cov(Y,Z)}{Cov(T,Z)}$
+\begin{minted}[%
+ breaklines,
+ mathescape,
+ numbersep=5pt,
+ numbersep=5pt,
+ xleftmargin=0pt,
+ ]{r}
+
+> cov(dat$Y, dat$Z) / cov(dat$T,dat$Z)
+[1] 0.031
+> (0.5 * 0.0) / 0.5
+[1] 0
+\end{minted}
+\end{column}
+\end{columns}
+  
+\vspace{3pt}
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.5} D{.}{.}{4.3} D{.}{.}{4.3} D{.}{.}{4.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{Bias amplifier} & \multicolumn{1}{c}{2SLS by hand} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God} \\
+\hline
+T           & 0.20^{***} & 0.24^{***}  &        & 0.03   & 0.00       \\
+            & (0.01)     & (0.01)      &        & (0.03) & (0.01)     \\
+Tf          &            &             & 0.03   &        &            \\
+            &            &             & (0.03) &        &            \\
+Z           &            & -0.11^{***} &        &        &            \\
+            &            & (0.02)      &        &        &            \\
+U           &            &             &        &        & 0.60^{***} \\
+            &            &             &        &        & (0.02)     \\
+\hline
+\multicolumn{6}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Instrumental variables: Some Intuitions}
+
+No need to identify the causal effect of $Z$ on $T$
+
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u2) {{\color{red}$U_2$}};
+    \node[below left=1.5cm and 0.8cm of t] (u1) {{\color{red}$U_1$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u2) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {}  (u2);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u1);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {}  (t);
+    \draw[<-, shorten >=.15cm] (z) --  node[left] {}  (u1);
+    \end{tikzpicture}
+\end{center}
+
+Provided $U_1$ is not also a confounder of the relationship between $T$ and $Y$
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Some Intuitions}
+
+No need the instrument cause treatment at all!
+
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u2) {{\color{red}$U_2$}};
+    \node[below left=1.5cm and 0.8cm of t] (u1) {{\color{red}$U_1$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u2) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {}  (u2);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u1);
+    % \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.5}}  (t);
+    \draw[<-, shorten >=.15cm] (z) --  node[left] {}  (u1);
+    \end{tikzpicture}
+\end{center}
+
+$Z$ could be just a proxy of the unobserved $U_1$
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Some Intuitions}
+
+It's not true that $Z$ just need to be associated with T in some arbitrary fashion
+
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u2) {{\color{red}$U_2$}};
+    % \node[below left=1.5cm and 0.8cm of t] (u1) {{\color{red}$U_1$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {\scriptsize{0.6}} (u2) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.0}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {\scriptsize{0.5}}  (u2);
+    % \draw[<-, shorten >=.15cm] (t) --  node[left] {\scriptsize{0.5}} (u1);
+    \draw[<-, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.5}}  (t);
+    % \draw[<-, shorten >=.15cm] (z) --  node[left] {\scriptsize{0.5}}  (u1);
+    \end{tikzpicture}
+\end{center}
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.5} D{.}{.}{4.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God} \\
+\hline
+T          & 0.24^{***} & 0.26^{***} & -0.00      \\
+           & (0.01)     & (0.03)     & (0.01)     \\
+U          &            &            & 0.61^{***} \\
+           &            &            & (0.02)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Some Intuitions}
+
+\vspace{-5pt}
+Sometimes we need to adjust for covariates to heal exclusion violations... 
+
+\vspace{-20pt}
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (d) {$D$};
+    \node[below=1.5cm of z] (u1) {{\color{red}$U_1$}};
+    \node[below=0.8cm of t] (u2) {{\color{red}$U_2$}};
+    \node[above left=1.5cm and 0.8cm of y] (u3) {{\color{red}$U_3$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (d) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.0}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {}  (u2);
+    \draw[->, shorten >=.15cm] (u2) --  node[left] {}  (d);
+    \draw[<-, shorten >=.15cm] (d) --  node[left] {} (u1);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {}  (t);
+    \draw[<-, shorten >=.15cm] (z) --  node[left] {}  (u1);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {}  (u3);
+    \draw[<-, shorten >=.15cm] (y) --  node[left] {}  (u3);
+    \end{tikzpicture}
+\end{center}
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.5} D{.}{.}{4.4} D{.}{.}{4.5} D{.}{.}{4.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{Naive + D} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{2SLS + D} & \multicolumn{1}{c}{God} \\
+\hline
+T          & 0.27^{***} & 0.19^{***} & 0.10^{**} & -0.00      & 0.00       \\
+           & (0.01)     & (0.01)     & (0.03)    & (0.03)     & (0.01)     \\
+D          &            & 0.45^{***} &           & 0.50^{***} & 0.50^{***} \\
+           &            & (0.01)     &           & (0.02)     & (0.01)     \\
+\hline
+\multicolumn{6}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Instrumental variables: Exclusion violations}
+
+Knowing and measuring the mechanism won't necessarily help 
+
+\vspace{-10pt}
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u1) {{\color{red}$U_1$}};
+    \node[below=0.8cm of t] (e) {$E$};
+    \node[above left=1.5cm and 0.8cm of y] (u2) {{\color{red}$U_2$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[below] {\scriptsize{1.5}} (e) ;	
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {\scriptsize{0.5}} (u2) ;
+    \draw[<-, shorten >=.15cm] (t) -- node[right] {\scriptsize{0.5}} (u2) ;
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.0}}  (y);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.3}}  (t);
+    \draw[->, shorten >=.15cm] (z) --  node[below] {\scriptsize{0.4}}  (e);
+    \draw[<-, shorten >=.15cm] (e) --  node[below] {\scriptsize{0.5}}  (u1);
+    \draw[<-, shorten >=.15cm] (y) --  node[right] {\scriptsize{1.5}}  (u1);
+    \end{tikzpicture}
+\end{center}
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{5.5} D{.}{.}{5.5} D{.}{.}{5.5} D{.}{.}{5.5} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{Naive + E} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{2SLS + E} & \multicolumn{1}{c}{God} \\
+\hline
+T          & 0.31^{***} & 0.15^{***} & 2.04^{***} & -0.78^{***} & 0.00       \\
+           & (0.03)     & (0.02)     & (0.12)     & (0.07)      & (0.01)     \\
+E          &            & 2.02^{***} &            & 2.09^{***}  & 1.51^{***} \\
+           &            & (0.01)     &            & (0.02)      & (0.01)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Exclusion violations}
+
+Post-treatment lost to follow-up (attrition)?
+
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[above left=1.5cm and 1cm of y] (u1) {{\color{red}$U_1$}};
+    \node[draw, below=1.0cm of t] (d) {$D$};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u1) ;
+    \draw[<-, shorten >=.15cm] (t) -- node[right] {} (u1) ;
+    \draw[->, shorten >=.15cm] (t) --  node[above] {}  (y);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {}  (t);
+    \draw[->, shorten >=.15cm] (t) --  node[above] {}  (d);
+    \end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Exclusion violations}
+
+Post-treatment lost to follow-up (attrition)?
+
+\begin{center}
+\begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[above left=1.5cm and 1cm of y] (u1) {{\color{red}$U_1$}};
+    \node[draw, below=1.0cm of t] (d) {$D$};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u1) ;
+    \draw[<-, shorten >=.15cm] (t) -- node[right] {} (u1) ;
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{0.3}}  (y);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize{0.5}}  (t);
+    \draw[->, shorten >=.15cm] (t) --  node[left] {\scriptsize{1.5}}  (d);
+    \end{tikzpicture}
+\end{center}
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.4} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God} \\
+\hline
+T          & 0.52^{***} & 0.20^{***} & 0.30^{***} \\
+           & (0.01)     & (0.04)     & (0.01)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Homogeneity}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=1.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize b}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize a}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\begin{itemize}
+    \item Effect of $T$ on $Y$ is the same for everybody
+    \item Effect of $Z$ on $T$ is the same for everybody
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: Homogeneity}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=1.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize b}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {\scriptsize a}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\hspace*{-50pt}
+\vspace*{-30pt}
+\begin{itemize}
+    \item IVs exploit only the portion of the variation in the treatment induced by the instrument
+    \item If treatment effect for those who respond to the instrument differs from the one for those who don't response, we only can get the average causal effect of those who respond to the instrument (LATE)
+    \item If the response to the instrument is so heterogeneous, and the treatment effect differs across groups, IV doesn't identify any causal effect (not even a weird average) 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: LATE}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\scriptsize{$[0.3, 0.6]$}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {
+    \scriptsize{$[0.01, 0.7]$}}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\begin{itemize}
+    \item Two groups of the same size
+    \item Average treatment effect = $\frac{0.3+0.6}{2}=0.45$
+\end{itemize}
+
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.4} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God using OLS} \\
+\hline
+T          & 0.68^{***} & 0.60^{***} & 0.48^{***} \\
+           & (0.01)     & (0.02)     & (0.01)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: LATE}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\tiny{$[0.3, 0.6, 0.1, 0.5]$}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {
+    \tiny{$[0.01, 0.7, 0.3,0.9]$}}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\begin{itemize}
+    \item Four groups of the same size
+    \item Average treatment effect = $0.375$
+\end{itemize}
+
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{4.5} D{.}{.}{4.5} D{.}{.}{4.5} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God using OLS} & \multicolumn{1}{c}{God using ML} \\
+\hline
+T                      & 0.59^{***} & 0.47^{***} & 0.42^{***} & 0.38^{***} \\
+                       & (0.01)     & (0.03)     & (0.01)     & (0.11)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Instrumental variables: LATE + Monotonicity?}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges 
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\tiny{$[0.3, 0.6]$}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {
+    \tiny{$[-0.5, 0.7]$}}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\begin{itemize}
+    \item Two groups of the same size
+    \item Average treatment effect = $0.45$
+\end{itemize}
+
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{5.5} D{.}{.}{5.5} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God using OLS} \\
+\hline
+T          & 0.65^{***} & 1.34^{***} & 0.47^{***} \\
+           & (0.01)     & (0.10)     & (0.01)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}{Resources}
+
+\begin{itemize}
+    \item Chapter 9: Counterfactuals and Causal Inference (Morgan and Winship, 2nd edition)
+    \item Chapter 4: Mostly Harmless Econometrics (Angrist and Pischke)
+    \item \href{https://gist.github.com/sdaza/99c4a13349858e2745733bd6e998f19f}{\color{blue}{\underline{Code simulations (R)}}}
+    \item DAGS: \href{http://www.dagitty.net/}{\color{blue}{\underline{http://www.dagitty.net/}}}
+\end{itemize}
+\end{frame}

@@ -1,0 +1,40 @@
+\frametitle{Instrumental variables: LATE + Monotonicity?}
+
+    \begin{center}
+    \begin{tikzpicture}[align=center,node distance= 3cm]
+    % nodes
+    \node at (180:3) (t) {$T$};
+    \node[right of=x] (y) {$Y$};
+    \node[below left=1.5cm and 1cm of y] (u) {{\color{red}$U$}};
+    \node[left=2.5cm of t] (z) {$Z$};
+    % edges
+    \draw[<-, shorten >=.15cm] (y) -- node[right] {} (u) ;	
+    \draw[->, shorten >=.15cm] (t) --  node[above] {\tiny{$[0.3, 0.6]$}}  (y);
+    \draw[<-, shorten >=.15cm] (t) --  node[left] {} (u);
+    \draw[->, shorten >=.15cm] (z) --  node[above] {
+    \tiny{$[-0.5, 0.7]$}}  (t);
+    \end{tikzpicture}
+    \end{center}
+
+\begin{itemize}
+    \item Two groups of the same size
+    \item Average treatment effect = $0.45$
+\end{itemize}
+
+
+\begin{table}
+\begin{center}
+\scriptsize
+\begin{tabular}{l D{.}{.}{5.5} D{.}{.}{5.5} D{.}{.}{5.5}}
+\hline
+ & \multicolumn{1}{c}{Naive} & \multicolumn{1}{c}{2SLS} & \multicolumn{1}{c}{God using OLS} \\
+\hline
+T          & 0.65^{***} & 1.34^{***} & 0.47^{***} \\
+           & (0.01)     & (0.10)     & (0.01)     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\end{center}
+\end{table}
+
+

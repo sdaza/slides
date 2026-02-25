@@ -1,0 +1,41 @@
+[project]
+name = "writing-workspace"
+version = "0.1.0"
+description = "LaTeX and Python workspace for academic writing and presentations"
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "pygments>=2.17.0", # Required for LaTeX minted package
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "matplotlib>=3.8.0",
+    "scipy>=1.12.0",
+    "seaborn>=0.13.0",
+    "ipykernel>=7.2.0",
+    # "experiment-utils-pd>=0.1.12",
+    "experiment-utils-pd",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.2.0",
+]
+
+[tool.uv]
+package = false  # This is a workspace, not a distributable package
+
+[tool.uv.sources]
+experiment-utils-pd = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git", rev = "fixing-bugs" }
+# experiment-utils-pd = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git", rev = "cov-adjustments" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

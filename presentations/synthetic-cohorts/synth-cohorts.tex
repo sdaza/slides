@@ -1,0 +1,417 @@
+%!LW recipe=lualatex-shell-escape
+
+\documentclass{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{listings}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{emoji}
+\usetikzlibrary{positioning}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+
+\makeatletter
+\newcommand*{\indep}{%
+  \mathbin{%
+    \mathpalette{\@indep}{}%
+  }%
+}
+\newcommand*{\nindep}{%
+  \mathbin{%                   % The final symbol is a binary math operator
+    \mathpalette{\@indep}{\not}% \mathpalette helps for the adaptation
+                               % of the symbol to the different math styles.
+  }%
+}
+\newcommand*{\@indep}[2]{%
+  % #1: math style
+  % #2: empty or \not
+  \sbox0{$#1\perp\m@th$}%        box 0 contains \perp symbol
+  \sbox2{$#1=$}%                 box 2 for the height of =
+  \sbox4{$#1\vcenter{}$}%        box 4 for the height of the math axis
+  \rlap{\copy0}%                 first \perp
+  \dimen@=\dimexpr\ht2-\ht4-.2pt\relax
+      % The equals symbol is centered around the math axis.
+      % The following equations are used to calculate the
+      % right shift of the second \perp:
+      % [1] ht(equals) - ht(math_axis) = line_width + 0.5 gap
+      % [2] right_shift(second_perp) = line_width + gap
+      % The line width is approximated by the default line width of 0.4pt
+  \kern\dimen@
+  {#2}%
+      % {\not} in case of \nindep;
+      % the braces convert the relational symbol \not to an ordinary
+      % math object without additional horizontal spacing.
+  \kern\dimen@
+  \copy0 %                       second \perp
+} 
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\makeatother
+
+% \usepackage[scale=2]{ccicons}
+% \usepackage{epstopdf}
+% \usepackage{xspace}
+% \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+% \usetheme{metropolis}           % use metropolis theme
+
+\usepackage{changepage}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{textcomp}
+\usepackage{color}
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{pgf,tikz}
+% \usepackage{url}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{dcolumn}
+\usepackage{array}
+\usepackage{siunitx}
+\usepackage{multirow}
+\usepackage[american]{babel}
+\usepackage{enumerate}
+\usepackage{minted}
+\setminted[r]{fontsize=\scriptsize}
+
+% \renewcommand{\footnotesize}{\scriptsize}
+% \usepackage[american]{babel}
+% \usepackage[absolute,overlay]{textpos}
+
+% % \title{test}
+% \title[]{\texorpdfstring{Examining {\color{blue}SIENA} Model for the Estimation of
+% {\color{red}Selection} and {\color{red}Influence}
+% under {\color{blue}Misspecification}}}
+
+\title[]{Synthetic controls}
+\subtitle{Brief introduction and intuitions}
+
+\author[shortname]{Sebastian Daza}
+% \institute[shortinst]{
+%     \inst{1} Department of Sociology, UW-Madison \\
+% }
+
+\date{}
+
+
+\begin{document}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Outline}
+\vspace{-0.1pt}
+\begin{itemize}
+    \item Very short intro to \textbf{diff-in-diff} estimates
+    \item Synthetic\textbf{ control }
+    \item Synthetic \textbf{diff-in-diff}
+    \item Geo-experiments
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Diff-in-Diff (DID) \emoji{smiling-face-with-sunglasses}}
+
+\begin{itemize}
+    \item It's one of the oldest tools, first used in 1855 by \textbf{John Snow} in his analysis of the cause of \textbf{cholera}
+    \vspace{0.1cm}
+    \item \red{\textbf{Goal}}: Identifying the causal effects when randomization is not possible
+    \begin{itemize}
+        \vspace{0.1cm}
+        \item We have same units in \textbf{multiple times} so we can set what happens before and after a \textbf{treatment} takes place 
+ 
+    \end{itemize}
+%     \vspace{0.1cm}
+%     \item Let's assume we have these data:
+%     \vspace{0.1cm}
+%     \begin{center}
+%     \includegraphics[width=0.6
+% \textwidth]{figures/did_data_example.png}
+%     \end{center}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Diff-in-Diff (DID): Example}
+
+\red{\textbf{Geo-experiment}}: Treat entire markets, such as a city or a state, while leaving others as control.
+
+\vspace{0.3cm}
+    \begin{center}
+         \includegraphics[width=0.60\textwidth]{figures/lookiero-countries.png}   
+    \end{center}
+
+  % Even if we have disaggregated data, we can estimate DID using regression and adjusting by date and city (fixed-effects)
+  
+\end{frame}
+
+\begin{frame}{Diff-in-Diff (DID): Block design \emoji{brick}}
+\vspace{0cm}
+    \begin{center}
+         \includegraphics[width=0.55\textwidth]{figures/block_design.png}   
+    \end{center}
+  
+\end{frame}
+
+\begin{frame}{Diff-in-Diff (DID)  \emoji{smiling-face-with-sunglasses}}
+
+Let's assume we have theses data:
+\vspace{-0.3cm}
+    \begin{center}
+         \includegraphics[width=0.50\textwidth]{figures/did_data_example.png}   
+    \end{center}
+\vspace{-0.4cm}
+\begin{itemize}
+    \vspace{0.1cm}
+    \item The \blue{DID} estimate will be: 
+    \red{$$(51.85-50.94)-(50.55-50.33)=0.69$$}
+    \vspace{-0.5cm}
+    \item DID measures the impact of a campaign on a city. It represents the \orange{Average Treatment Effect for the Treated (ATT)}, quantifying the campaign's effect post-launch
+    \vspace{0.1cm}
+    \item With disaggregated data, we can use regression and adjusting for pre/post and city (fixed-effects)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Diff-in-Diff (DID)  \emoji{smiling-face-with-sunglasses}}
+\vspace{0.1cm}
+    \begin{center}
+         \includegraphics[width=0.99\textwidth]{figures/diff-in-diff-diagram.png}   
+    \end{center}
+\vspace{-0.3cm}
+$$Y_{it}=\beta_0+\beta_1D_i + \beta_2 Post_t + \beta_3 D_iPost + e_{it}$$
+\end{frame}
+
+\begin{frame}{DID assumptions \emoji{grimacing-face}}
+\vspace{-0.2cm}
+    \begin{center}
+    \includegraphics[width=0.90\textwidth]{figures/parallel_lines.png}   
+    \end{center}
+
+\vspace{-0.1cm}
+\begin{itemize}
+    \item \textbf{\orange{Parallel trends}}
+    \item \textbf{\orange{No anticipation assumption (SUTVA)}}
+    \vspace{0.1cm}
+    \item \textbf{\orange{Strict exogeneity}}
+    \vspace{0.1cm}
+    \begin{itemize}
+        \item No time varying confounders
+        \item Assignment to treatment isn't based on future potential outcome trajectories
+        \item No carryover effect
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Synthetic control (SC) \emoji{pill}}
+
+\begin{itemize}
+    \item \blue{\textbf{DID}} works great if you have a large number of units $N$ compared to time periods $T$
+    \vspace{0.2cm}
+    \item \red{\textbf{SC}} works fine with very few treatment units
+    
+    \begin{itemize}
+    \vspace{0.1cm}
+        \item Combine the control units to create a synthetic control that approximate the behavior of treated units in the absence of treatment
+    \vspace{0.1cm}
+        \item If that approximation is good and generalizes into the post-intervention period, we can estimate \red{ATT}
+        \vspace{0.1cm}
+        \item We can relax the parallel trend assumption
+       
+    \end{itemize}
+
+% \begin{quote}
+%     use the pre-intervention period to regress the pre-treatment outcome on very predictive time series and extend those predictions to the post-intervention period.
+% \end{quote}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Synthetic control (SC) \emoji{pill}}
+
+\vspace{0.2cm}
+\red{\textbf{Goal}}: Combine the control units to approximate the average outcome for the treated units using only the pre-treatment period:
+\vspace{-0.1cm}
+$$\hat{\omega}^{sc} = \argmin_{\omega}||\bar{y}_{pre,tr} -Y_{pre,co^{\omega_{co}}}||^2$$
+
+To make it simple, we can reframe the problem in linear regression terms: 
+\vspace{-0.1cm}
+$$\beta^{*} = \argmin_{\beta}||Y_{i} -X^{'}_{i}\beta||^2$$
+
+\vspace{-0.4cm}
+    \begin{center}
+    \includegraphics[width=0.35\textwidth]{figures/horizontal_regression.png} 
+    \includegraphics[width=0.35\textwidth]{figures/sc_weights.png}   
+
+    \end{center}
+
+\end{frame}
+
+\begin{frame}{Synth Control: Regression approach}  
+
+\vspace{0.3cm}
+    \begin{center}
+    \includegraphics[width=0.6\textwidth]{figures/regression_control.png}   
+    \end{center}
+\vspace{-0.1cm}
+    \begin{center}
+    \includegraphics[width=0.6\textwidth]{figures/regression_att.png}   
+    \end{center}
+    
+\end{frame}
+
+\begin{frame}{Synth Control: Regression approach}  
+
+\vspace{0.3cm}
+    \begin{center}
+    \includegraphics[width=0.9\textwidth]{figures/synth-control-intro.png}   
+    \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Synth Control: Canonical approach}  
+\vspace{-0.5cm}
+$$\hat{\omega}^{sc} = \argmin_{\omega}||\bar{y}_{pre,tr} -Y_{pre,co^{\omega_{co}}}||^2$$
+
+Where $\sum \omega_i=1$ and $\omega_i > 0 \quad \forall \quad i$
+\vspace{0.1cm}
+\begin{itemize}
+\vspace{0.1cm}
+    \item \textbf{\orange{Avoid extrapolation}}
+    \begin{itemize}
+        \item If the treatments units are very different from the ones in the control group you shouldn't even try
+    \end{itemize}
+    \vspace{0.1cm}
+    \item \textbf{\orange{Regularization}}
+
+    \vspace{0.3cm}
+    \begin{center}
+    \includegraphics[width=0.6\textwidth]{figures/cannonical_sc.png}   
+    \end{center}
+    
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Synthetic Diff-in-Diff (SDID) \emoji{pill}$^2$}
+
+\vspace{0.3cm}
+\begin{itemize}
+    \item First, we create a synthetic control
+        \begin{itemize}
+            \item \red{Unit weights} \red{$\hat{\omega}_i^{sc}$} (pre-treatment for control and treated)
+        \end{itemize}
+    \item Second, we create \blue{time weights} \blue{$\hat{\lambda}_t^{sc}$} (pre and post treatment only for control) 
+    \item Then, we multiple weights
+\end{itemize}
+
+    \vspace{-0.2cm}
+    \begin{center}
+    \includegraphics[width=0.62\textwidth]{figures/sc_weighting.pdf}   
+    \end{center}
+
+% $\frac{N_{tr}}{N} \times \blue{\hat{\lambda}_t^{sc}}$
+
+% $ \red{\hat{\omega}_i^{sc}} \times  \frac{T_{post}}{T}$
+
+% $\frac{N_{tr}}{N} \times \blue{\hat{\lambda}_t^{sc}}$
+
+% $ \red{\hat{\omega}_i^{sc}} \times  \blue{\hat{\lambda}_t^{sc}}$
+\end{frame}
+
+\begin{frame}{Synthetic Diff-in-Diff (SDID) \emoji{pill}$^2$}
+
+Finally, we estimate DID using \textbf{weighted least squares} (WLS) regression:
+\vspace{-0.0cm}
+$$
+\min \sum_{i} w_i(y_i - \beta_0  - 
+\beta_1 treated_{i} -
+\beta_2  post_{i} -
+\red{\beta_3} treated_{i} \times post_{i})^2
+$$
+\vspace{-0.4cm}
+\begin{center}
+\includegraphics[width=0.90\textwidth]{figures/sdid.png}   
+    \end{center}
+\end{frame}
+
+\begin{frame}{Synthetic Diff-in-Diff (SDID): Example}
+
+\vspace{-0.4cm}
+\begin{center}
+\includegraphics[width=1\textwidth]{figures/lookiero_estimates.png}   
+    \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Synthetic Diff-in-Diff (SDID) \emoji{pill}$^2$}
+
+\begin{itemize}
+    \item The SC makes the \blue{DID}'s parallel trend assumption more plausible
+   \item \red{SDID} tends to have lower bias than \blue{DID} and \orange{SC}   
+    \item \red{SDID} tends to have lower variance
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Geo-experiments}
+
+\begin{itemize}
+    % \item \red{Attribution} is not the same as \blue{incrementality}
+    \item We can treat entire markets, such as a city or a state, while leaving others as control
+    \item This approach provide us with panel data, but as given
+    \item \blue{How to best select the treated and control markets?}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Geo-experiments}
+
+\blue{\textbf{Goal}}: Select a group of cities (treatment and control) that is representative of the total market
+
+That way, if you treat that group, you will get an idea of what would happen if the entire market (i.e., the country) is treated $\sim$ \orange{maximize the external validity of the intervention}
+
+\begin{itemize}
+    \item Simple A/B estimating if we have lots of geographical units $\sim$ \blue{power analysis!}
+    \item \red{Synthetic control design}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Geo-experiments: Simple idea}
+
+\begin{itemize}
+    % \item Identify set of units (e.g., cities) will be best treatments and controls, using as target the average market values
+    \item Define a number of \orange{treatment units} $m$
+    \item Iterate over random combinations of cities $m$ + \orange{remaining cities}
+    \item Minimize the \texttt{loss} from the \red{Synthetic Cohort} function for each set of cities
+    \item Retrieve the cities in control and treatment
+\end{itemize}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/geo-experiments.png}   
+    \end{center}
+\end{frame}
+
+\begin{frame}{Resources}
+
+\begin{itemize}
+    \item \textbf{\red{SDID Python}}: \href{https://github.com/MasaAsami/pysynthdid}{https://github.com/MasaAsami/pysynthdid}
+    \item \textbf{\blue{SDID R}}: \href{https://github.com/synth-inference/synthdid/}{https://github.com/synth-inference/synthdid/}
+    \item  \textbf{\orange{Google causal impact (BSTS)}}: \href{https://github.com/WillianFuks/tfcausalimpact}{https://github.com/WillianFuks/tfcausalimpact}
+    \item Chapter \textbf{8} and \textbf{10} from the book \textbf{\orange{Causal Inference in Python}}
+\end{itemize}
+\end{frame}
+
+
+\end{document}
