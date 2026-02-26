@@ -106,48 +106,51 @@
 \begin{document}
 \maketitle
 
+\AtBeginSection{
+  \begin{frame}[plain,noframenumbering]
+    \sectionpage
+  \end{frame}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Outline \emoji{world-map}}
 \vspace{-0.1pt}
 \begin{itemize}
-    \item Introduction \& Causal Inference Fundamentals
+    \item Causal Inference Fundamentals
     \item Experimental Design \& Randomization
     \item Power Analysis \& Sample Size
     \item Sampling \& Covariate Balance
-    \item AB Analysis + Confounding \& Non-compliance Simulations
+    \item Analysis
+    \item Non-Compliance \& Confounding
     % \item Benchmarks, Best Practices \& Common Pitfalls
     % \item Beyond AB Testing (DiD, SC, SDID, Geo-experiments)
 \end{itemize}
 
 \end{frame}
 
-\subsection{Introduction}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Python Package: \texttt{experiment-utils-pd} \emoji{package}}
 
-A Python package for designing, analyzing, and validating experiments with advanced causal inference capabilities
-
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/experiment-utils-package.png}
+\includegraphics[width=0.65\textwidth]{figures/experiment-utils-package.png}
 \end{center}
 
-\vspace{0.3cm}
 \textbf{Key components:}
 \begin{itemize}
     \item \texttt{ExperimentAnalyzer} - AB test analysis, IV, IPW, regression adjustment, retrodesign
     \item \texttt{PowerSim} - Sample size \& power calculations, retrodesign
-    % \item \texttt{utils} - Balanced random assignment
+    \item \texttt{utils} - Balanced random assignment
 \end{itemize}
 
-\vspace{0.1cm}
 \textbf{Links:} \href{https://pypi.org/project/experiment-utils-pd}{PyPI} | \href{https://github.com/sdaza/experiment-utils-pd}{GitHub}
 
 \end{frame}
 
-\subsection{Causal Inference Fundamentals}
+
+\section{Causal Inference Fundamentals}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,23 +158,20 @@ A Python package for designing, analyzing, and validating experiments with advan
 
 \textbf{Goal}: Measure the \red{causal effect} of a treatment/intervention
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 \textbf{\orange{The Fundamental Problem of Causal Inference:}}
 \begin{itemize}
     \item For any individual, we can only observe \blue{one} potential outcome
-    \vspace{0.1cm}
     \item Example: Did the medication work for patient $i$?
     \begin{itemize}
         \item We observe: Patient took medication $\rightarrow$ recovered in 5 days
         \item We \red{cannot} observe: Same patient without medication $\rightarrow$ ?
     \end{itemize}
-    \vspace{0.1cm}
     \item \red{Individual causal effects are fundamentally unobservable}
-    \vspace{0.2cm}
     \item We need a \blue{counterfactual}: What would have happened without treatment?
 \end{itemize}
 
-\vspace{0.2cm}
+\vspace{0.1cm}
 \textbf{Solution}: \red{Randomized experiments} (RCTs/A/B tests) create valid comparisons
 \end{frame}
 
@@ -185,18 +185,13 @@ A Python package for designing, analyzing, and validating experiments with advan
     \item Example: Sicker patients seek treatment $\rightarrow$ worse outcomes (confounding)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 \textbf{With randomization:}
 \begin{itemize}
     \item Treatment assignment is \blue{independent} of all other characteristics
     \item Groups are \orange{exchangeable}: same distribution of characteristics
     \item Any difference in outcomes can be attributed to treatment
 \end{itemize}
-
-% \vspace{0.2cm}
-% \begin{block}{Key Insight}
-% Randomization breaks the link between treatment and confounders
-% \end{block}
 
 \end{frame}
 
@@ -208,16 +203,14 @@ A Python package for designing, analyzing, and validating experiments with advan
     \begin{itemize}
         \item Random treatment assignment creates exchangeable groups
     \end{itemize}
-    \vspace{0.2cm}
-    
+
     \item \textbf{\orange{Stable Unit Treatment Value Assumption (SUTVA)}}
     \begin{itemize}
         \item \red{No interference}: Units don't affect each other
         \item \red{Consistency}: Treatment uniformly defined
         \item Violations: Network effects, marketplace spillovers
     \end{itemize}
-    \vspace{0.2cm}
-    
+
     \item \textbf{\red{Compliance}}
     \begin{itemize}
         \item Treatment received matches treatment assigned
@@ -236,7 +229,7 @@ A Python package for designing, analyzing, and validating experiments with advan
     \item \textbf{Threats:} Selection bias, implementation errors (SRM), measurement errors, SUTVA violations
 \end{itemize}
 
-\vspace{0.4cm}
+\vspace{0.15cm}
 \textbf{\orange{External Validity}}: Can we generalize \red{beyond} our experiment?
 \begin{itemize}
     \item \textbf{Threats:} Non-representative samples, novelty effects, seasonal/context factors
@@ -251,25 +244,40 @@ A Python package for designing, analyzing, and validating experiments with advan
 
 \textbf{\blue{Between-Subjects Design:}}
 \begin{itemize}
-    \item Each unit receives \blue{only one} treatment condition
-    \item Compare \red{different} units: Group A vs Group B
-    \item Example: 50\% users see version A, 50\% see version B
-    \item \textbf{Key limitation:} More participants needed, lower power
+    \item Each unit receives \blue{only one} condition; compare \red{different} units (A vs B)
+    \item \textit{E.g.,} 50\% see version A, 50\% see version B
+    \item \textbf{Limitation:} More participants needed, lower power
 \end{itemize}
-
-\vspace{0.3cm}
 \textbf{\orange{Within-Subjects Design:}}
 \begin{itemize}
-    \item Each unit receives \orange{all} treatment conditions (at different times)
-    \item Compare \red{same} unit against itself
-    \item Example: All users see version A in week 1, version B in week 2
-    \item \textbf{Key limitation:} Order/carryover effects, not irreversible treatments
+    \item Each unit receives \orange{all} conditions at different times; compare \red{same} unit
+    \item \textit{E.g.,} All users see A in week 1, B in week 2
+    \item \textbf{Limitation:} Order/carryover effects; not for irreversible treatments
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Estimand, Estimator, Estimate \emoji{dart}}
+
+\begin{description}[leftmargin=0pt]
+    \item[\blue{Estimand}] \textbf{What} we want to know --- the target quantity
+    \begin{itemize}
+        \item \textit{E.g.,} ATE: $\mathbb{E}[Y(1) - Y(0)]$; also ATT (on the treated), LATE (on compliers)
+    \end{itemize}
+
+    \item[\orange{Estimator}] \textbf{How} we compute it --- the method or formula
+    \begin{itemize}
+        \item \textit{E.g.,} difference in means, OLS, IPW --- same estimand can have multiple estimators
+    \end{itemize}
+
+    \item[\red{Estimate}] \textbf{What we get} --- the actual number from our data
+    \begin{itemize}
+        \item \textit{E.g.,} $\hat{\tau} = +0.056$ (5.6 pp lift); always comes with a standard error
+    \end{itemize}
+\end{description}
+
+\end{frame}
 
 \section{Power Analysis \& Sample Size}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -321,11 +329,11 @@ For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-po
 \begin{frame}{Small Effects + Limited Traffic: What To Do? \emoji{light-bulb}}
 
 \begin{enumerate}
-    \item \textbf{\blue{Reduce variance}}: CUPED, regression adjustment, stratified randomization
+    \item \textbf{\blue{Reduce variance}}: CUPED (pre-experiment covariate adjustment), regression adjustment (control for pre-treatment covariates), stratified randomization
     \item \textbf{\orange{Use sensitive metrics}}: surrogate/proxy metrics
     \item \textbf{\blue{Redesign experiment}}: within-subjects, responsive subpopulations, longer duration
-    \item \textbf{\orange{Accumulate evidence}}: meta-analysis (\texttt{combine\_effects})
-    \item \textbf{\red{Go quasi-experimental}}: DiD, Synthetic Control, Geo-experiments, Interrupted Time Series
+    \item \textbf{\orange{Accumulate evidence}}: meta-analysis
+    \item \textbf{\red{Go quasi-experimental}}: DiD (Difference-in-Differences), Synthetic Control, Geo-experiments, Interrupted Time Series
 \end{enumerate}
 
 \end{frame}
@@ -333,16 +341,17 @@ For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-po
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Multiple Comparisons Problem \emoji{fishing-pole}}
 
-\textbf{Problem:} Testing $m$ metrics at $\alpha=0.05$ expects 1 false positive per 20 tests
+\textbf{Problem:} Every test has a 5\% false positive rate by chance. Testing $m$ metrics simultaneously inflates this:
 
-$$P(\text{at least 1 false positive}) = 1 - (1-\alpha)^m$$
+$$P(\text{at least 1 false positive}) = 1 - (1-\alpha)^m \quad \xrightarrow{m=10} \quad \approx 40\%$$
 
-\vspace{0.3cm}
-\textbf{Solutions:}
-\begin{itemize}
-    \item Multiple comparison corrections
-    \item Bonferroni, Holm-Bonferroni, Sidak, Benjamini-Hochberg (FDR)
-\end{itemize}
+\textbf{Two correction strategies:}
+\begin{description}
+    \item[\blue{FWER}] Control probability of \emph{any} false positive\\
+        Bonferroni, Holm-Bonferroni --- stricter, fewer discoveries
+    \item[\orange{FDR}] Control the \emph{proportion} of false positives among significant results\\
+        Benjamini-Hochberg --- less strict, better when testing many metrics
+\end{description}
 
 \end{frame}
 
@@ -356,7 +365,7 @@ $$P(\text{at least 1 false positive}) = 1 - (1-\alpha)^m$$
 
 \vspace{1cm}
 \begin{minted}[fontsize=\tiny]{python}
-from experiment_utils.power_sim import PowerSim
+from experiment_utils import PowerSim
 
 p = PowerSim(metric='proportion',
             relative_effect=False,
@@ -380,9 +389,9 @@ result = p.find_sample_size(
     # compliance=0.80,
     optimize_allocation=True)
 
-Using sample size 17202 (driven by (0, 1)) 
-Optimized sample sizes: {'control': 1455, 'variant_1': 7873, 'variant_2': 7873}
-Achieved power: {'(0, 1)': 0.907, '(0, 2)': 1.0, '(1, 2)': 0.942}
+Using sample size 12926 (driven by (0, 1)) 
+Optimized sample sizes: {'control': 1093, 'variant_1': 5916, 'variant_2': 5916}
+Achieved power: {'(0, 1)': 0.839, '(0, 2)': 0.986, '(1, 2)': 0.873}
 
 \end{minted}
 
@@ -392,7 +401,6 @@ Achieved power: {'(0, 1)': 0.907, '(0, 2)': 1.0, '(1, 2)': 0.942}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Power Analysis in Practice \emoji{magnifying-glass-tilted-left}}
 
-\vspace{0.2cm}
 \begin{enumerate}
 
     \item \textbf{\blue{Always explore multiple scenarios}} --- not just one power calculation
@@ -400,14 +408,12 @@ Achieved power: {'(0, 1)': 0.907, '(0, 2)': 1.0, '(1, 2)': 0.942}
         \item Jointly optimize: 80\% power + \red{realistic MDE} + acceptable duration
         \item In 1--2\% MDE territory: proxy metrics, CUPED
     \end{itemize}
-    \vspace{0.15cm}
 
     \item \textbf{\blue{MDE is the most constrained parameter}} --- rarely inflated to compensate
     \begin{itemize}
         \item Should reflect \red{minimum business-relevant effect}, not statistical convenience
         \item If MDE is unrealistic, the experiment probably shouldn't run (quasi-exp instead)
     \end{itemize}
-    \vspace{0.15cm}
 
     \item \textbf{\orange{Heuristics as smart defaults}}
     \begin{itemize}
@@ -423,27 +429,29 @@ Achieved power: {'(0, 1)': 0.907, '(0, 2)': 1.0, '(1, 2)': 0.942}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Exploring the Power Surface \emoji{chart-increasing}}
 
-\vspace{0.2cm}
 \begin{minted}[fontsize=\tiny]{python}
-p = PowerSim(metric='proportion', relative_effect=False,
-             variants=1, nsim=1000)
+p = PowerSim(metric='proportion', 
+            relative_effect=False, 
+            variants=1,
+            nsim=1000)
 
-rr = p.grid_sim_power(
-    baseline_rates=0.25,
-    effects=[0.005, 0.01, 0.02, 0.03, 0.04],
-    sample_sizes=[1000, 2000, 3000, 5000, 8000, 10000],
-    plot=True)
+rr = p.grid_sim_power(baseline_rates=0.25,
+                effects=[0.005, 0.01, 0.02, 0.03, 0.04],
+                sample_sizes=[1000, 2000, 3000, 5000, 8000, 10000],
+                hue='effect',
+                threads=16,
+                plot=True)
 \end{minted}
 
 \vspace{0.1cm}
 \begin{center}
-    \includegraphics[width=0.70\textwidth]{figures/grid_sim_power.png}
+    \includegraphics[width=0.55\textwidth]{figures/grid_sim_power.png}
 \end{center}
 
 \end{frame}
 
 
-\subsection{Sampling \& Randomization}
+\section{Sampling \& Covariate Balance}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%
@@ -456,14 +464,12 @@ rr = p.grid_sim_power(
     \item \red{Increases credibility} - Shows randomization worked properly
 \end{itemize}
 
-\vspace{0.2cm}
 \textbf{Two main approaches:}
 \begin{itemize}
     \item \blue{Random Sampling} - Simple random selection
     \begin{itemize}
         \item Easy to implement, may result in imbalanced small segments
     \end{itemize}
-\vspace{0.1cm}
     \item \red{Stratified Sampling} - Sample within dimensions
     \begin{itemize}
         \item Ensures representation across strata, better for heterogeneous populations
@@ -478,34 +484,29 @@ rr = p.grid_sim_power(
 \begin{frame}[fragile]{Blocking / Stratified Sampling \emoji{technologist}}
 
 \begin{minted}[fontsize=\tiny]{python}
-from experiment_utils.utils import balanced_random_assignment
-
-# simulated data with covariates (3000 rows):
-age  previous_purchases  days_since_signup  treatment  conversion
-0  29.143694                   5         464.228095  treatment           0
-1  49.973454                   2         577.496020    control           0
-2  42.829785                   6         806.725758  treatment           1
-3  24.937053                   6        1324.618460    control           0
-4  34.213997                   5         415.036894  treatment           0
+from experiment_utils import balanced_random_assignment
 
 # random allocation
-treatment = balanced_random_assignment(
+treatment_unblock = balanced_random_assignment(
     df,
-    variants=['control', 'treatment'],
-    allocation_ratio=0.5,
-    check_balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
-    # balance_covariates=['age', 'previous_purchases', 'days_since_signup']
+    variants=['treatment', 'control'],
+    allocation_ratio=1/2,
+    balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
+    seed=4321
 )
-----------------------------------------------------------------------
-         covariate  mean_treatment  mean_control       smd balanced
-               age       40.046056     40.415916 -0.036537        y
-previous_purchases        3.088000      3.004000  0.048583        y
- days_since_signup      365.495181    358.738388  0.018646        y
+
+Balance Check After Assignment
+
+Comparison: control (n=1,500) vs treatment (n=1,500)
+
+         covariate  n_control  n_treatment  mean_control  mean_treatment      smd balanced
+               age       1500         1500     39.629457       39.578661 0.005167        y
+previous_purchases       1500         1500      3.072000        2.958000 0.065706        y 
+ days_since_signup       1500         1500    367.491830      345.775354 0.060344        y
 
 Summary: 3/3 covariates balanced (|SMD| < 0.1)
-Mean |SMD|: 0.0346
-Max |SMD|: 0.0486
-======================================================================
+Mean |SMD|: 0.0437
+Max |SMD|: 0.0657
 
 \end{minted}
 \end{frame}
@@ -515,46 +516,115 @@ Max |SMD|: 0.0486
 \begin{minted}[fontsize=\tiny]{python}
 
 # stratified allocation
-treatment = balanced_random_assignment(
+treatment_block = balanced_random_assignment(
     df,
-    variants=['control', 'treatment'],
-    allocation_ratio=0.5,
-    check_balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
-    balance_covariates=['age', 'previous_purchases', 'days_since_signup']
+    variants=['treatment', 'control'],
+    allocation_ratio=1/2,
+    stratification_covariates=['age', 'previous_purchases', 'days_since_signup'],
+    seed=4321
 )
 
-----------------------------------------------------------------------
-         covariate  mean_control  mean_treatment       smd balanced
-               age     40.167258       40.297051 -0.012818        y
-previous_purchases      3.062868        3.028513  0.019869        y
- days_since_signup    362.615133      361.600167  0.002801        y
+Balance Check After Assignment
+
+Comparison: treatment (n=1,500) vs control (n=1,500)
+         covariate  n_treatment  n_control  mean_treatment  mean_control      smd balanced
+               age         1500       1500       39.656748     39.551370 0.010718        y
+previous_purchases         1500       1500        3.015333      3.014667 0.000384        y
+ days_since_signup         1500       1500      358.103009    355.164175 0.008163        y
 
 Summary: 3/3 covariates balanced (|SMD| < 0.1)
-Mean |SMD|: 0.0118
-Max |SMD|: 0.0199
-======================================================================
+Mean |SMD|: 0.0064
+Max |SMD|: 0.0107
 
 \end{minted}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Regression with Pre-Treatment Covariates \emoji{robot}}
+\begin{frame}{Distribution Assumptions: Don't Overthink It \emoji{brain}}
 
-\textbf{Even with perfect randomization, regression adjustment helps:}
-
-\vspace{0.2cm}
+% \vspace{0.3cm}
+\textbf{Why not useful:}
 \begin{itemize}
-    \item \blue{Reduced variance} $\rightarrow$ narrower confidence intervals, higher precision
-    \item \orange{Increased power} to detect effects (especially with correlated covariates)
-    \item \red{Corrects for chance imbalances} in small samples
+    \item \blue{CLT (Central Limit Theorem):} Sample means $\approx$ normal for large n (>30-50), regardless of distribution
+    \item Normality tests too sensitive; \orange{sampling distribution} matters, not population
 \end{itemize}
 
-\vspace{0.2cm}
-\textbf{When to use:}
+\vspace{0.1cm}
+\textbf{What to do:}
 \begin{itemize}
-    \item Pre-treatment covariates strongly correlated with outcome (most of the time)
-    \item Sample size < 1000 per group (chance imbalances more likely)
+    \item \textbf{Large samples:} Use standard t-tests / z-tests (rely on CLT)
+    \item \textbf{Small samples/complex metrics:} Use \blue{bootstrapping}
+    \item \textbf{Extreme outliers:} Robust statistics (better models!)
+\end{itemize}
+
+\end{frame}
+
+\section{Analysis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Components \emoji{straight-ruler}}
+
+\textbf{Key components:}
+\begin{itemize}
+    \item \blue{Primary metrics}
+    \begin{itemize}
+        \item Pre-specified metrics (e.g., revenue, conversion)
+        \item Multiple tests?
+    \end{itemize}
+    \item \orange{Guardrail metrics}
+    \begin{itemize}
+        \item Safety checks (e.g., load time, error rates)
+        \item Implementation metrics
+    \end{itemize}
+    \item \red{Sample Ratio Mismatch (SRM)}
+    \begin{itemize}
+        \item Does split match expectation?
+        \item SRM signals implementation issues or bias
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Simple analysis \emoji{technologist} (1,500 users/group, 5 pp lift)}
+
+\begin{minted}[fontsize=\tiny]{python}
+from experiment_utils import ExperimentAnalyzer
+
+analyzer_simple = ExperimentAnalyzer(
+    df,
+    treatment_col='treatment',
+    outcomes='conversion',
+    bootstrap=True,
+    exp_sample_ratio=0.50,
+    outcome_models={'conversion':['ols', 'logistic']},
+    # pvalue_adjustment='sidak',
+)
+analyzer_simple.get_effects()
+print(analyzer_simple.results.round(3)[['model_type', 'absolute_effect', 'relative_effect', 'srm_pvalue']])
+
+  model_type  absolute_effect  relative_effect  srm_pvalue
+0        ols            0.051            0.153         1.0
+1   logistic            0.051            0.153         1.0
+\end{minted}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Regression with Pre-Treatment Covariates \emoji{robot}}
+
+\textbf{Regression adjustment} controls for pre-treatment covariates to partial out noise unrelated to treatment.
+
+\textbf{Benefits (even with perfect randomization):}
+\begin{itemize}
+    \item \blue{Reduced variance} $\rightarrow$ narrower confidence intervals, higher precision
+    \item \orange{Increased power} (especially when covariates correlate with outcome)
+    \item \red{Corrects chance imbalances} in small samples ($n < 1000$/group)
+    \item \textbf{Use when:} pre-treatment covariates available --- almost always worth it
 \end{itemize}
 
 \end{frame}
@@ -562,30 +632,36 @@ Max |SMD|: 0.0199
 \begin{frame}[fragile]{Regression Adjustment \emoji{robot}}
 
 \begin{minted}[fontsize=\tiny]{python}
-from experiment_utils.experiment_analyzer import ExperimentAnalyzer
+from experiment_utils import ExperimentAnalyzer
 
 # no adjustment
 analyzer_simple = ExperimentAnalyzer(
     df,
     treatment_col='treatment',
-    outcomes='conversion'
+    outcomes='conversion',
+
 )
 analyzer_simple.get_effects()
-analyzer_simple.results['standard_error']
-0.0173
+print(analyzer_simple.results[['absolute_effect', 'pvalue', 'standard_error']])
+
+   absolute_effect    pvalue  standard_error
+0         0.051333  0.003411        0.017531
 
 # covariate adjustment
 analyzer_adjusted = ExperimentAnalyzer(
     df,
     treatment_col='treatment',
     outcomes='conversion',
-    covariates=['age', 'previous_purchases', 'days_since_signup'],
     regression_covariates=['age', 'previous_purchases', 'days_since_signup']
 )
 
 analyzer_adjusted.get_effects()
-analyzer_adjusted.results['standard_error']
-0.0122
+print(analyzer_adjusted.results[['absolute_effect', 'pvalue', 'standard_error']])
+   absolute_effect    pvalue  standard_error
+0         0.050259  0.000039        0.012212
+
+final_effect = analyzer_adjusted.results.loc[0, 'absolute_effect']
+
 \end{minted}
 
 
@@ -610,7 +686,7 @@ analyzer_adjusted.results['standard_error']
 % \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Winner's Curse \emoji{skull}}
+\begin{frame}{Winner's Curse \emoji{skull} (Subsample of 500 users/group)}
 
 \textbf{Problem:} Significant results often \red{overestimate} true effect
 
@@ -636,126 +712,40 @@ $$\text{Relative Bias} = \frac{\hat{\tau}}{\tau}$$
 
 \begin{minted}[fontsize=\tiny]{python}
 
-# reduce the sample size (~500 per group)
-sdf = df.sample(1000)
-analyzer_simple = ExperimentAnalyzer(
-    sdf,
-    treatment_col='treatment',
-    outcomes='conversion'
-)
-analyzer_simple.get_effects()
-analyzer_simple.results[['absolute_effect', 'pvalue']]
-   absolute_effect    pvalue
-0         0.076136  0.011805
+# we hunted for significant effect using a smaller sample (n=500/group)
+print(analyzer_retro.results[['absolute_effect', 'pvalue', 'standard_error']])
+   absolute_effect    pvalue  standard_error
+0         0.080322  0.007778        0.030179
 
-# let's assess the potential bias (we know the MDE is 0.045)
-analyzer_simple.calculate_retrodesign(true_effect=0.045)
+print(f'True effect: {final_effect:.4f}')
+True effect: 0.0503
+
 cols = ['power', 'type_s_error', 'type_m_error', 'relative_bias', 'trimmed_abs_effect']
-print(analyzer_simple.calculate_retrodesign(true_effect=true_effect)[cols])
+print(analyzer_retro.calculate_retrodesign(true_effect=final_effect)[cols])
+    power  type_s_error  type_m_error  relative_bias  trimmed_abs_effect
+0  0.3996           0.0        1.5829         1.5829            0.050743
 
-   power  type_s_error  type_m_error  relative_bias  trimmed_abs_effect
-0  0.336        0.0006        1.7265         1.7248              0.04414
 \end{minted}
 
 \end{frame}
 
-
-\section{More on analysis}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Components \emoji{straight-ruler}}
-
-\textbf{Key components:}
-
-\vspace{0.3cm}
-\begin{itemize}
-    \item \blue{Primary metrics}
-    \begin{itemize}
-        \item Pre-specified metrics (e.g., revenue, conversion)
-        \item Multiple tests?
-    \end{itemize}
-    \vspace{0.2cm}
-    \item \orange{Guardrail metrics}
-    \begin{itemize}
-        \item Safety checks (e.g., load time, error rates)
-        \item Implementation metrics
-    \end{itemize}
-    \vspace{0.2cm}
-    \item \red{Sample Ratio Mismatch (SRM)}
-    \begin{itemize}
-        \item Does split match expectation?
-        \item SRM signals implementation issues or bias
-    \end{itemize}
-\end{itemize}
-
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Simple analysis \emoji{technologist}}
-
-\begin{minted}[fontsize=\tiny]{python}
-from experiment_utils import ExperimentAnalyzer
-
-analyzer = ExperimentAnalyzer(
-    df,
-    treatment_col='treatment',
-    outcomes='conversion',
-    bootstrap=True,
-    exp_sample_ratio_col='expected_sample_ratio',
-    outcome_models={'conversion':['ols', 'logistic']},
-    # pvalue_adjustment='sidak',
-)
-analyzer.get_effects()
-print(analyzer.results.round(3)[['model_type', 'absolute_effect', 'relative_effect', 
-    'rel_effect_lower', 'rel_effect_upper', 'srm_pvalue']])
-
-  model_type  absolute_effect  relative_effect  rel_effect_lower  rel_effect_upper  srm_pvalue
-0        ols            0.056            0.179             0.075             0.309       0.324
-1   logistic            0.056            0.179             0.074             0.307       0.324
-\end{minted}
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Distribution Assumptions: Don't Overthink It \emoji{brain}}
-
-% \vspace{0.3cm}
-\textbf{Why not useful:}
-\begin{itemize}
-    \item \blue{CLT:} Sample means $\approx$ normal for large n (>30-50), regardless of distribution
-    \item Normality tests too sensitive; \orange{sampling distribution} matters, not population
-\end{itemize}
-
-\vspace{0.3cm}
-\textbf{What to do:}
-\begin{itemize}
-    \item \textbf{Large samples:} Use standard t-tests / z-tests (rely on CLT)
-    \item \textbf{Small samples/complex metrics:} Use \blue{bootstrapping}
-    \item \textbf{Extreme outliers:} Robust statistics (better models!)
-\end{itemize}
-
-\end{frame}
-
-\subsection{Simulation: Non-Compliance + Confounding}
+\section{Non-Compliance \& Confounding}
 
 \begin{frame}{What If the Experiment Is Broken? \emoji{scream}}
 
 \textbf{\red{Common problems:}}
 \begin{itemize}
     \item \textbf{Implementation issues} - Bugs in assignment or logging
-    \item \textbf{SRM} - Observed split differs from expected
+    \item \textbf{SRM (Sample Ratio Mismatch)} - Observed split differs from expected
     \item \textbf{Non-compliance} - Users don't receive assigned treatment
 \end{itemize}
 
 \vspace{0.2cm}
 \textbf{\blue{What can we do?}}
 \begin{itemize}
-    \item \textbf{ITT} - Preserves randomization, underestimates effect
-    \item \textbf{Regression adjustment / IPW} - Correct for imbalances
-    \item \textbf{IV} - Assignment as instrument (ITT $\rightarrow$ LATE)
+    \item \textbf{ITT (Intent to Treat)} - Preserves randomization, underestimates effect
+    \item \textbf{Regression adjustment / IPW (Inverse Probability Weighting)} - Correct for imbalances
+    \item \textbf{IV (Instrumental Variables)} - Assignment as instrument (ITT $\rightarrow$ LATE)
 \end{itemize}
 
 \end{frame}
@@ -769,9 +759,7 @@ print(analyzer.results.round(3)[['model_type', 'absolute_effect', 'relative_effe
     \item Attenders are more engaged, higher baseline revenue (\red{confounding})
 \end{itemize}
 
-\vspace{0.2cm}
 \textbf{How to recover the true effect on bookings?}
-\vspace{0.1cm}
 
 \begin{description}
     \item[\blue{ITT}] As assigned $\rightarrow$ \red{underestimates} effect
@@ -808,7 +796,7 @@ absolute_effect  abs_effect_lower  abs_effect_upper         pvalue
 \end{frame}
 
 
-\begin{frame}[fragile]{Intend-to-Treat (ITT) \emoji{balance-scale}}
+\begin{frame}[fragile]{Intent-to-Treat (ITT) \emoji{balance-scale}}
 
 \textbf{ITT:} Compare all treated vs control, regardless of attendance
 
@@ -844,25 +832,13 @@ absolute_effect  abs_effect_lower  abs_effect_upper        pvalue
 ipw = ExperimentAnalyzer(
     cdf,
     treatment_col='attended', outcomes='bookings',
-    covariates=['engagement', 'account_age_months', 'monthly_usage'],
-    adjustment='balance',  balance_method='ps-logistic', target_effect='ATT', overlap_plot=True)
+    balance_covariates=['engagement', 'account_age_months', 'monthly_usage'],
+    adjustment='balance',  balance_method='ps-logistic', estimand='ATT', overlap_plot=True)
 
 ipw.get_effects()
 ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue']]
    absolute_effect  abs_effect_lower  abs_effect_upper         pvalue
 0         5.056775          4.652374          5.461177  1.212354e-132
-
-# what about just regression adjustment?
-reg_adj = ExperimentAnalyzer(
-    cdf,
-    treatment_col='attended', outcomes='bookings',
-    covariates=['engagement', 'account_age_months', 'monthly_usage'],
-    regression_covariates=['engagement', 'account_age_months', 'monthly_usage'])
-
-reg_adj.get_effects()
-reg_adj.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper']]
-   absolute_effect  abs_effect_lower  abs_effect_upper         pvalue
-0         5.086338          4.766525          5.406151  2.597419e-213
 
 \end{minted}
 \end{frame}
@@ -876,7 +852,6 @@ reg_adj.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper']]
     \item Without it, weights become extreme $\rightarrow$ \red{high variance and bias}
 \end{itemize}
 
-\vspace{0.1cm}
 \textbf{\blue{What to do:}}
 \begin{itemize}
     \item \textbf{Diagnose:} Inspect propensity score distributions by group
@@ -884,30 +859,22 @@ reg_adj.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper']]
     \item \textbf{Target:} Shift estimand from ATE $\rightarrow$ ATT
 \end{itemize}
 
-\vspace{0.1cm}
-\begin{center}
-    \includegraphics[width=0.30\textwidth]{figures/ipw-overlap.png}
-\end{center}
-
 \end{frame}
 
 
 \begin{frame}[fragile]{Instrumental Variables (IV) \emoji{key}}
 
-\textbf{IV:} Assignment as instrument $\rightarrow$ One-sided non-compliance $\rightarrow$ LATE $\equiv$ ATT (compliers = attenders)
-
-\small{Since always-takers don't exist, every attender is a complier.}
+\textbf{IV:} Use assignment as instrument to isolate the effect on compliers (attenders)\\
+\small{One-sided non-compliance: LATE $\equiv$ ATT, since there are no always-takers.}
 
 \textbf{True effect} = 5 bookings
 
-
 \begin{minted}[fontsize=\tiny]{python}
-
 iv = ExperimentAnalyzer(
     cdf,
     treatment_col='attended',
     outcomes='bookings',
-    covariates=['engagement', 'account_age_months', 'monthly_usage'],
+    regression_covariates=['engagement', 'account_age_months', 'monthly_usage'],
     instrument_col='assigned',
     adjustment='IV'
 )
@@ -918,8 +885,6 @@ print(iv.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pv
 
 \end{minted}
 
-\small{We only want to use the part of attendance variation that came from the random assignment. I'm throwing away self-selection.}
-
 \end{frame}
 
 
@@ -927,15 +892,12 @@ print(iv.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pv
 
 \textbf{Goal:} Pool effect estimates across multiple experiments into a single estimate
 
-\vspace{0.2cm}
 \textbf{\blue{Inverse-variance weighting:}}
 \begin{itemize}
     \item Each experiment's estimate is weighted by $w_i = 1/\sigma_i^2$
     \item More precise experiments (smaller SE) get \blue{more weight}
-    % \item Pooled estimate: $\hat{\tau} = \frac{\sum_i w_i \hat{\tau}_i}{\sum_i w_i}$, \quad $\text{SE}(\hat{\tau}) = 1/\sqrt{\sum_i w_i}$
 \end{itemize}
 
-\vspace{0.2cm}
 \textbf{\orange{When to use it:}}
 \begin{itemize}
     \item Multiple experiments testing the \blue{same intervention}
@@ -943,7 +905,6 @@ print(iv.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pv
     \item Experiments run across different \red{regions / segments}
 \end{itemize}
 
-\vspace{0.1cm}
 \textbf{\red{Key assumption:}} All experiments share the same true effect (homogeneity)
 
 \end{frame}
@@ -967,7 +928,7 @@ experiments = [
 # naive pooled analysis: ignores experiment structure
 naive = ExperimentAnalyzer(data=meta_df, treatment_col="treatment", outcomes=["conversion"])
 naive.get_effects()
-# absolute_effect = 0.1397   <-- 2.8x the true effect!
+# absolute_effect = 0.1431   <-- 2.9x the true effect!
 
 # correct: fixed-effects meta-analysis
 analyzer = ExperimentAnalyzer(
@@ -987,19 +948,19 @@ pooled = analyzer.combine_effects(grouping_cols=["outcome"])
 # per-experiment results
 print(analyzer.results[["experiment", "absolute_effect", "standard_error", "pvalue"]].round(4))
   experiment  absolute_effect  standard_error  pvalue
-      exp_1           0.0758          0.0200  0.0001
-      exp_2           0.0319          0.0221  0.1494
-      exp_3           0.0333          0.0247  0.1774
-      exp_4           0.0800          0.0342  0.0193
-      exp_5           0.0203          0.0443  0.6464
+      exp_1           0.0558          0.0196  0.0043
+      exp_2           0.0621          0.0225  0.0057
+      exp_3           0.0707          0.0244  0.0038
+      exp_4           0.0586          0.0341  0.0856
+      exp_5           0.0406          0.0443  0.3596
 
 print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pvalue"]])
       outcome  experiments  absolute_effect  standard_error    pvalue
-   conversion          5.0           0.0514          0.0115  0.000008
+   conversion          5.0           0.0600          0.0114  1.54e-07
 
 # True effect = 0.05
-# Naive pooled  = 0.14  <-- 2.8x overestimate
-# Meta-analysis = 0.05  <-- recovers true effect
+# Naive pooled  = 0.14  <-- 2.9x overestimate
+# Meta-analysis = 0.06  <-- recovers true effect
 \end{minted}
 \end{frame}
 
@@ -1012,6 +973,34 @@ print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pv
     \item Regression adjustment reduces variance and corrects for imbalances, even with perfect randomization
     \item Non-compliance and confounding can be addressed with ITT, IPW, and IV methods
     \item Meta-analysis allows pooling across multiple experiments
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Next Steps \& Beyond \emoji{rocket}}
+
+\textbf{\blue{The Inference Cycle}}
+
+\begin{center}
+\scalebox{0.70}{%
+\begin{tikzpicture}[node distance=0.8cm, every node/.style={align=center, font=\tiny}]
+    \node[draw, rounded corners, fill=blue!10] (design) {\textbf{Design}\\randomization,\\power, sampling};
+    \node[draw, rounded corners, fill=orange!10, right=of design] (estimation) {\textbf{Estimation}\\analysis,\\causal inference};
+    \node[draw, rounded corners, fill=red!10, right=of estimation] (optimization) {\textbf{Optimization}\\uplift modeling,\\personalization};
+    \draw[->, thick] (design) -- (estimation);
+    \draw[->, thick] (estimation) -- (optimization);
+    \draw[->, thick, dashed, bend left=25] (optimization) to node[above]{\tiny inform next experiment} (design);
+\end{tikzpicture}}
+\end{center}
+
+\vspace{0.1cm}
+\textbf{\orange{Other techniques to explore:}}
+\begin{itemize}
+    \item \textbf{Quasi-experimental:} DiD, Synthetic Control, Geo-experiments, ITS
+    \item \textbf{Heterogeneous effects:} Uplift modeling, causal forests (HTE)
+    \item \textbf{Sequential testing:} Always-valid inference, alpha-spending (peeking)
+    \item \textbf{Bayesian experimentation:} Prior incorporation, posterior decision rules
 \end{itemize}
 
 \end{frame}

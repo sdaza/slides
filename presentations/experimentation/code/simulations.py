@@ -31,74 +31,63 @@ result = p.find_sample_size(
 )
 
 # %% multiple simulation of power 
-p = PowerSim(metric='proportion', relative_effect=False, variants=1,
-             nsim=1000, correction='holm')
+p = PowerSim(metric='proportion', 
+            relative_effect=False, 
+            variants=1,
+            nsim=1000)
 
-# %%
-rr = p.grid_sim_power(baseline_rates=0.11,
+rr = p.grid_sim_power(baseline_rates=0.25,
                 effects=[0.005, 0.01, 0.02, 0.03, 0.04],
                 sample_sizes=[1000, 2000, 3000, 5000, 8000, 10000],
+                hue='effect',
                 threads=16,
                 plot=True)
 
-# %% simulate data to do sampling using balanced random assignment, and how covariate adjustment can help with precision
-# np.random.seed(123)
+# %% simulate data to do sampling using balanced random assignment
 n = 3000
-
-# Simulate covariates that are strongly correlated with outcome
 age = np.random.normal(40, 10, n)
 previous_purchases = np.random.poisson(3, n)
 days_since_signup = np.random.exponential(365, n)
 
-# Very strong covariate effects - covariates explain most of the variance
-# Standardize covariates for stronger effects
 age_std = (age - age.mean()) / age.std()
 purchases_std = (previous_purchases - previous_purchases.mean()) / previous_purchases.std()
 days_std = (days_since_signup - days_since_signup.mean()) / days_since_signup.std()
 
-# EXTREMELY strong covariate effects - make covariates highly predictive
-# Using very large coefficients so covariates explain ~80% of variance
 logit_baseline = -2 + 2.5 * age_std + 3.0 * purchases_std - 2.0 * days_std
 baseline_prob = 1 / (1 + np.exp(-logit_baseline))
 
-# %%
-# Create dataframe with covariates
 df = pd.DataFrame({
     'age': age,
     'previous_purchases': previous_purchases,
     'days_since_signup': days_since_signup
 })
 
-# %% 
-# Assign treatment using balanced random assignment
+# %% assign treatment using balanced random assignment
 treatment_unblock = balanced_random_assignment(
     df,
-    variants=['control', 'treatment'],
-    allocation_ratio=0.5,
-    check_balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
+    variants=['treatment', 'control'],
+    allocation_ratio=1/2,
+    balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
+    seed=4321
 )
 
 # %%
 treatment_block = balanced_random_assignment(
     df,
-    variants=['control', 'treatment'],
-    allocation_ratio=0.5,
-    check_balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
-    balance_covariates=['age', 'previous_purchases', 'days_since_signup'],
-    seed=24
+    variants=['treatment', 'control'],
+    allocation_ratio=1/2,
+    stratification_covariates=['age', 'previous_purchases', 'days_since_signup'],
+    seed=4321
 )
 
-treatment = treatment_block
 
-# %% Generate outcomes
-# Apply treatment effect on logit scale for proper probability calculation
-is_treatment = (np.array(treatment) == 'treatment')
-# Use the SAME strong coefficients as defined above!
-logit_with_treatment = -2 + 2.5 * age_std + 3.0 * purchases_std - 2.0 * days_std + 0.50 * is_treatment
+# %% generate outcomes
+is_treatment = (np.array(treatment_block) == 'treatment')
+logit_with_treatment = -2 + 2.5 * age_std + 3.0 * purchases_std - 2.0 * days_std + 0.60 * is_treatment
 conversion_prob = 1 / (1 + np.exp(-logit_with_treatment))
 conversions = np.random.binomial(1, conversion_prob)
 
-df['treatment'] = treatment
+df['treatment'] = treatment_block
 df['conversion'] = conversions
 
 # %% simple analysis
@@ -113,10 +102,10 @@ analyzer_simple = ExperimentAnalyzer(
 )
 
 analyzer_simple.get_effects()
-print(analyzer_simple.results.round(3)[['model_type', 'absolute_effect', 'relative_effect', 
-                                        'rel_effect_lower', 'rel_effect_upper', 'srm_pvalue']])
+print(analyzer_simple.results.round(3)[
+    ['model_type', 'absolute_effect', 'relative_effect', 'srm_pvalue']])
 
-# %% Analyze without covariate adjustment
+# %% analyze without covariate adjustment
 analyzer_simple = ExperimentAnalyzer(
     df,
     treatment_col='treatment',
@@ -126,7 +115,7 @@ analyzer_simple = ExperimentAnalyzer(
 analyzer_simple.get_effects()
 print(analyzer_simple.results[['absolute_effect', 'pvalue', 'standard_error']])
 
-# %% Analyze with covariate adjustment
+# %% analyze with covariate adjustment
 analyzer_adjusted = ExperimentAnalyzer(
     df,
     treatment_col='treatment',
@@ -135,7 +124,6 @@ analyzer_adjusted = ExperimentAnalyzer(
 )
 
 analyzer_adjusted.get_effects()
-print(analyzer_adjusted.results['standard_error'])
 print(analyzer_adjusted.results[['absolute_effect', 'pvalue', 'standard_error']])
 final_effect = analyzer_adjusted.results.loc[0, 'absolute_effect']
 
@@ -151,31 +139,28 @@ analyzer_cuped.get_effects()
 print(analyzer_cuped.results[['absolute_effect', 'pvalue', 'standard_error']])
 
 # %% winner curse example
-sdf = df.sample(1000)
-
-# run until getting a significant result (p < 0.02)
-
-np.random.seed(42)
+np.random.seed(66)
 max_iterations = 500
 iteration = 0
 while iteration < max_iterations:
-    sample = sdf.sample(1000, replace=True)
-    analyzer = ExperimentAnalyzer(
+    sample = df.sample(1000, replace=True)
+    analyzer_retro = ExperimentAnalyzer(
         sample,
         treatment_col='treatment',
         outcomes='conversion'
     )
-    analyzer.get_effects()
-    pvalue = analyzer.results.loc[0, 'pvalue']
+    analyzer_retro.get_effects()
+    pvalue = analyzer_retro.results.loc[0, 'pvalue']
     if pvalue < 0.02:
         print(f"Significant result found at iteration {iteration} with p-value: {pvalue:.4f}")
         break
     iteration += 1
 
 # %%
+print(analyzer_retro.results[['absolute_effect', 'pvalue', 'standard_error']])
 cols = ['power', 'type_s_error', 'type_m_error', 'relative_bias', 'trimmed_abs_effect']
 print(f'True effect: {final_effect:.4f}')
-print(analyzer_simple.calculate_retrodesign(true_effect=final_effect)[cols])
+print(analyzer_retro.calculate_retrodesign(true_effect=final_effect)[cols])
 
 # %% checking power estimation consistency
 p = PowerSim(metric='proportion',
@@ -185,7 +170,7 @@ p = PowerSim(metric='proportion',
             alpha=0.05,
             alternative='two-tailed',
 )
-p.get_power(baseline=0.3, effect=0.045, sample_size=500)
+p.get_power(baseline=0.3, effect=final_effect, sample_size=500)
 
 # %% compliance simulation
 np.random.seed(42)
@@ -263,7 +248,6 @@ ipw = ExperimentAnalyzer(
     estimand='ATT',
     overlap_plot=True
 )
-ipw.get_effects()
 print(ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue']])
 
 # %% regression adjustment

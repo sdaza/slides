@@ -1,5 +1,5 @@
 [project]
-name = "writing-workspace"
+name = "slides"
 version = "0.1.0"
 description = "LaTeX and Python workspace for academic writing and presentations"
 requires-python = ">=3.12"
