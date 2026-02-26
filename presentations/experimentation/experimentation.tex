@@ -667,24 +667,6 @@ final_effect = analyzer_adjusted.results.loc[0, 'absolute_effect']
 
 \end{frame}
 
-% \begin{frame}{CUPED vs Regression Adjustment: Does It Matter? \emoji{disguised-face}}
-
-% \vspace{0.1cm}
-% \textbf{\orange{What actually matters!}}
-% \begin{itemize}
-%     \item Use \blue{pre-experiment $Y$} as covariate $\rightarrow$ typically highest $\rho$, easy to automate
-%     \item Include \red{treatment $\times$ covariate interactions} (per-group slopes)
-%     \begin{itemize}
-%         \item Without: pooled $\theta$ $\rightarrow$ might \red{inflate} variance with unequal splits
-%         \item With: \blue{asymptotically always $\geq$ as efficient} as the unadjusted estimator
-%     \end{itemize}
-%     \item Use robust standard errors
-% \end{itemize}
-
-% % \vspace{0.2cm}
-% % \textbf{Bottom line:} variance reduction $\approx \rho^2_{XY}$, so \blue{covariate choice} matters more than the label. Pre-experiment outcome is usually best; adding more covariates helps if they explain residual variance (\href{https://building.nubank.com/3-lessons-from-implementing-controlled-experiment-using-pre-experiment-data-cuped-at-nubank/}{Nubank lessons})
-% \end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Winner's Curse \emoji{skull} (Subsample of 500 users/group)}
 
@@ -859,6 +841,9 @@ ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue'
     \item \textbf{Target:} Shift estimand from ATE $\rightarrow$ ATT
 \end{itemize}
 
+\begin{center}
+\includegraphics[width=0.35\textwidth]{figures/ipw-overlap.png}
+\end{center}
 \end{frame}
 
 
@@ -878,7 +863,9 @@ iv = ExperimentAnalyzer(
     instrument_col='assigned',
     adjustment='IV'
 )
+
 iv.get_effects()
+
 print(iv.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue']])
    absolute_effect  abs_effect_lower  abs_effect_upper  pvalue
 0         4.870595          4.381111           5.36008     0.0
@@ -923,37 +910,14 @@ experiments = [
     {"name": "exp_4", "n": 1000, "alloc": 0.70, "baseline": 0.40},
     {"name": "exp_5", "n": 800,  "alloc": 0.80, "baseline": 0.50},
 ]
-# true_effect = 0.05 in all experiments
 
-# naive pooled analysis: ignores experiment structure
-naive = ExperimentAnalyzer(data=meta_df, treatment_col="treatment", outcomes=["conversion"])
-naive.get_effects()
-# absolute_effect = 0.1431   <-- 2.9x the true effect!
-
-# correct: fixed-effects meta-analysis
 analyzer = ExperimentAnalyzer(
     data=meta_df, treatment_col="treatment",
     outcomes=["conversion"], experiment_identifier="experiment",
 )
 analyzer.get_effects()
+
 pooled = analyzer.combine_effects(grouping_cols=["outcome"])
-\end{minted}
-
-\end{frame}
-
-
-\begin{frame}[fragile]{Fixed-Effects Meta-Analysis \emoji{technologist}}
-
-\begin{minted}[fontsize=\tiny]{python}
-# per-experiment results
-print(analyzer.results[["experiment", "absolute_effect", "standard_error", "pvalue"]].round(4))
-  experiment  absolute_effect  standard_error  pvalue
-      exp_1           0.0558          0.0196  0.0043
-      exp_2           0.0621          0.0225  0.0057
-      exp_3           0.0707          0.0244  0.0038
-      exp_4           0.0586          0.0341  0.0856
-      exp_5           0.0406          0.0443  0.3596
-
 print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pvalue"]])
       outcome  experiments  absolute_effect  standard_error    pvalue
    conversion          5.0           0.0600          0.0114  1.54e-07
@@ -962,6 +926,7 @@ print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pv
 # Naive pooled  = 0.14  <-- 2.9x overestimate
 # Meta-analysis = 0.06  <-- recovers true effect
 \end{minted}
+
 \end{frame}
 
 
@@ -990,7 +955,7 @@ print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pv
     \node[draw, rounded corners, fill=red!10, right=of estimation] (optimization) {\textbf{Optimization}\\uplift modeling,\\personalization};
     \draw[->, thick] (design) -- (estimation);
     \draw[->, thick] (estimation) -- (optimization);
-    \draw[->, thick, dashed, bend left=25] (optimization) to node[above]{\tiny inform next experiment} (design);
+    \draw[->, thick, dashed, bend left=30] (optimization) to node[above]{\tiny Feedback} (design);
 \end{tikzpicture}}
 \end{center}
 

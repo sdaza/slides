@@ -248,6 +248,7 @@ ipw = ExperimentAnalyzer(
     estimand='ATT',
     overlap_plot=True
 )
+ipw.get_effects()
 print(ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue']])
 
 # %% regression adjustment
@@ -338,3 +339,5 @@ print(analyzer.results[["experiment", "outcome", "absolute_effect", "standard_er
 pooled = analyzer.combine_effects(grouping_cols=["outcome"])
 print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pvalue"]])
 print(f"\nTrue effect: {true_effect}")
+
+# %%
