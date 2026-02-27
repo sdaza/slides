@@ -340,4 +340,10 @@ pooled = analyzer.combine_effects(grouping_cols=["outcome"])
 print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pvalue"]])
 print(f"\nTrue effect: {true_effect}")
 
+# %% 
+analyzer.plot_effects(
+    meta_analysis=True,
+    title="Meta-Analysis of Treatment Effects Across Experiments",
+    show_labels=True    
+)
 # %%

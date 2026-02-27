@@ -118,11 +118,15 @@
 \vspace{-0.1pt}
 \begin{itemize}
     \item Causal Inference Fundamentals
-    \item Experimental Design \& Randomization
-    \item Power Analysis \& Sample Size
-    \item Sampling \& Covariate Balance
+    \item Experimental Design
+    \begin{itemize}
+        \item Power Analysis \& Sample Size
+        \item Sampling \& Stratification
+    \end{itemize}
     \item Analysis
-    \item Non-Compliance \& Confounding
+    \begin{itemize}
+        \item Non-Compliance \& Confounding
+    \end{itemize}
     % \item Benchmarks, Best Practices \& Common Pitfalls
     % \item Beyond AB Testing (DiD, SC, SDID, Geo-experiments)
 \end{itemize}
@@ -154,46 +158,212 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{What problem are we trying to solve? \emoji{thinking-face}}
+\begin{frame}{The Ladder of Causation (Pearl) \emoji{bar-chart}}
 
-\textbf{Goal}: Measure the \red{causal effect} of a treatment/intervention
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\textwidth}{clXl}
+\toprule
+\textbf{Rung} & \textbf{Level} & \textbf{Question} & \textbf{DS Role} \\
+\midrule
+1 & \blue{Association} \textit{(Owl)}         & \textit{``What is?''}             & Prediction       \\
+2 & \orange{Intervention} \textit{(Baby)}     & \textit{``What if I do\ldots?''}  & Decisions        \\
+3 & \red{Counterfactual} \textit{(Scientist)} & \textit{``What if I had\ldots?''} & ITE / CATE       \\
+\bottomrule
+\end{tabularx}
 
 \vspace{0.1cm}
-\textbf{\orange{The Fundamental Problem of Causal Inference:}}
-\begin{itemize}
-    \item For any individual, we can only observe \blue{one} potential outcome
-    \item Example: Did the medication work for patient $i$?
-    \begin{itemize}
-        \item We observe: Patient took medication $\rightarrow$ recovered in 5 days
-        \item We \red{cannot} observe: Same patient without medication $\rightarrow$ ?
-    \end{itemize}
-    \item \red{Individual causal effects are fundamentally unobservable}
-    \item We need a \blue{counterfactual}: What would have happened without treatment?
+{\footnotesize
+\begin{itemize}\setlength{\itemsep}{0.02cm}
+    \item \blue{Rung 1}: $P(Y \mid X)$ --- patterns in observed data; home of predictive ML
+    \item \orange{Rung 2}: $P(Y \mid do(X))$ --- effect of actions; needs experiments or assumptions
+    \item \red{Rung 3}: $P(Y_x \mid x', y')$ --- individual counterfactuals; structural causal models
 \end{itemize}
+}
 
-\vspace{0.1cm}
-\textbf{Solution}: \red{Randomized experiments} (RCTs/A/B tests) create valid comparisons
 \end{frame}
 
 
-\begin{frame}{Why Randomization Works \emoji{game-die}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Rung 1 --- The Owl: Seeing Patterns \emoji{owl}}
 
-\textbf{Without randomization:}
-\begin{itemize}
-    \item Treatment and control groups may differ in many ways
-    \item Differences in outcomes could be due to pre-existing differences, not treatment
-    \item Example: Sicker patients seek treatment $\rightarrow$ worse outcomes (confounding)
+$P(Y \mid X)$ --- \textit{``Given I observe X, what is Y likely to be?''}
+
+\vspace{0.2cm}
+\begin{itemize}\setlength{\itemsep}{0.12cm}
+    \item \textbf{Industry home:} risk prediction, churn, fraud detection, recommendations
+    \item \textbf{Task:} find patterns in data $\rightarrow$ guess an outcome
+    \item \textbf{Powerful for:} monitoring, alerting, targeting, ranking
+    \item \red{\textbf{Cannot tell you:} what to \textit{change} to get a different outcome}
 \end{itemize}
 
-\vspace{0.1cm}
-\textbf{With randomization:}
-\begin{itemize}
-    \item Treatment assignment is \blue{independent} of all other characteristics
-    \item Groups are \orange{exchangeable}: same distribution of characteristics
-    \item Any difference in outcomes can be attributed to treatment
+\vspace{0.2cm}
+{\small A churn model tells you \blue{who} will churn --- not \red{what intervention would prevent it}}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Data Validity Cliff \emoji{warning}}
+
+The name captures the idea: your data has \blue{solid validity} for prediction --- then you \red{step off a cliff} the moment you use it to justify an intervention.
+
+\vspace{0.08cm}
+{\small The cliff is confounding: $P(Y \mid X) \neq P(Y \mid do(X))$ --- your model learned \emph{who} tends to have high $Y$, not \emph{what causes} $Y$ to change}
+
+\vspace{0.12cm}
+\textbf{Classic fall: Selection vs.\ Policy}
+\begin{itemize}\setlength{\itemsep}{0.04cm}
+    \item \textbf{Observation:} \textit{``Users who adopt Feature X have 40\% higher engagement''}
+    \item \textbf{Decision:} Ship Feature X to everyone $\rightarrow$ engagement will rise
+    \item \textbf{Reality:} Engaged users \blue{self-selected} into Feature X --- the engagement was already there
 \end{itemize}
 
 \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Rung 2 --- The Baby: Doing \& Deciding \emoji{test-tube}}
+
+$P(Y \mid do(X))$ --- \textit{``What happens if we intervene?''} \quad \orange{\textbf{Business decisions live here}}
+
+\vspace{0.15cm}
+\begin{itemize}\setlength{\itemsep}{0.08cm}
+    \item \orange{\textbf{A/B test}}: randomization manufactures the $do$ --- cleanest path to Rung 2
+    \item \textbf{Not always possible:} ethical constraints, time horizons, cost, irreversibility
+\end{itemize}
+
+\vspace{0.15cm}
+\textbf{When you can't experiment $\rightarrow$ Identification:}
+\begin{itemize}\setlength{\itemsep}{0.05cm}
+    \item Build a bridge: $P(Y \mid X) \rightarrow P(Y \mid do(X))$ using assumptions
+    \item Tools: DiD, IV, regression discontinuity, synthetic control
+    \item \red{\textbf{The data can never give you the assumptions}} --- they come from theory
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Rung 3 --- The Scientist: Imagining \emoji{microscope}}
+
+\textbf{A/B tests $\rightarrow$ ATE}: average effect across the population \\
+{\footnotesize Nothing specific about individuals or subgroups}
+
+\vspace{0.06cm}
+\textbf{Rung 3 asks:} \textit{``What would have happened to \emph{this} unit had we acted differently?''} \\
+{\footnotesize Requires a \orange{structural causal model} --- logic + domain knowledge, not just data}
+
+\vspace{0.06cm}
+\textbf{Email campaign example:}
+\begin{itemize}\setlength{\itemsep}{0.02cm}
+    \item {\small Rung 2: ``Does the campaign increase purchases on average?'' $\rightarrow$ holdout test $\rightarrow$ ATE}
+    \item {\small Rung 3: ``Would \emph{this} customer have bought without the email?'' $\rightarrow$ purchase intent model}
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{Putting It Together: Doctor Onboarding \(\rightarrow\) Bookings \emoji{clipboard}}
+
+% \begin{itemize}\setlength{\itemsep}{0.15cm}
+%     \item \blue{\textbf{Rung 1 (Owl):}} \textit{``Doctors who complete onboarding have 35\% more bookings''} \\
+%           {\footnotesize Selection bias: motivated doctors do both --- $P(\text{bookings} \mid \text{onboarding})$}
+
+%     \item \orange{\textbf{Rung 2 (Baby):}} \textit{``The new flow caused a $+6\%$ lift in bookings''} \\
+%           {\footnotesize A/B test or DiD $\Rightarrow$ ATE --- $P(\text{bookings} \mid do(\text{onboarding}))$}
+
+%     \item \red{\textbf{Rung 3 (Scientist):}} \textit{``Would Dr.~\#47291 have reached 5 bookings/week without it?''} \\
+%           {\footnotesize ITE / uplift model --- strong structural assumptions required}
+% \end{itemize}
+
+% \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{How Stakeholders Talk --- and the Tough Conversation \emoji{speech-balloon}}
+
+% \begin{itemize}\setlength{\itemsep}{0.1cm}
+
+%     \item \blue{\textbf{Rung 1}} {\footnotesize\red{(sounds causal, but isn't)}}
+%     \begin{itemize}\setlength{\itemsep}{0.01cm}
+%         \item[] \small\textit{``Onboarding \textbf{drives} bookings'' / ``X is a key \textbf{lever} for retention''}
+%         \item[] \small\blue{These are associations --- push back when stakeholders claim causality}
+%     \end{itemize}
+
+%     \item \orange{\textbf{Rung 2}} {\footnotesize(valid only after a controlled experiment)}
+%     \begin{itemize}\setlength{\itemsep}{0.01cm}
+%         \item[] \small\textit{``The new flow \textbf{caused} a $+6\%$ \textbf{lift}'' / ``measure the \textbf{impact}''}
+%     \end{itemize}
+
+%     \item \red{\textbf{Rung 3}}
+%     \begin{itemize}\setlength{\itemsep}{0.01cm}
+%         \item[] \small\textit{``Would they have churned \textbf{anyway}?'' / ``How much was \textbf{incremental}?''}
+%         \item[] \small\textit{``Does our mobile result apply to desktop?''} {\footnotesize--- transportability}
+%         \item[] \small\orange{Needs theory + structural model, not just more data}
+%     \end{itemize}
+
+% \end{itemize}
+
+% \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}{What is the Role of Uplift Modeling? \emoji{chart-increasing}}
+
+% \begin{center}
+% A/B test $\rightarrow$ \blue{\textbf{ATE}}: does the treatment work \emph{on average}? \\[0.04cm]
+% Uplift model $\rightarrow$ \orange{\textbf{CATE}}: for \emph{whom} does it work?
+% \end{center}
+
+% \vspace{0.04cm}
+% \textbf{Still Rung 2 fundamentally} --- needs A/B data to train \\
+% {\small Gets closer to Rung 3 thinking: estimating heterogeneous effects}
+
+% \vspace{0.08cm}
+% \textbf{Target the ``persuadables'':}
+% \begin{itemize}\setlength{\itemsep}{0.02cm}
+%     \item \blue{Always-takers}: convert regardless $\rightarrow$ no incremental value
+%     \item \red{Never-takers}: won't convert $\rightarrow$ wasted resources
+%     \item \orange{Persuadables}: respond to treatment $\rightarrow$ \textbf{target these}
+% \end{itemize}
+
+% \vspace{0.04cm}
+% {\small \red{Caveat:} Individual counterfactual still unobservable --- strong assumptions required for validation}
+
+% \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Fundamental Problem (Rung 2) \emoji{test-tube}}
+
+For any unit, we only observe \blue{one} potential outcome --- never both
+
+\vspace{0.1cm}
+\begin{itemize}\setlength{\itemsep}{0.05cm}
+    \item Dr.~\#47291 got the new onboarding flow $\rightarrow$ 8 bookings/week
+    \item We \red{cannot} observe: same doctor with the old flow $\rightarrow$ \textbf{?}
+    \item \red{Individual causal effects are unobservable} (Rung 3 territory)
+\end{itemize}
+
+\vspace{0.1cm}
+\textbf{Rung 2 solution}: compare \blue{groups} $\rightarrow$ estimate the \blue{ATE}
+
+\vspace{0.05cm}
+\begin{itemize}\setlength{\itemsep}{0.05cm}
+    \item \orange{A/B test}: random assignment creates a counterfactual group
+    \item \blue{Quasi-experiments} (DiD, IV, RD): when randomization is not possible
+\end{itemize}
+
+\end{frame}
+
 
 
 \begin{frame}{Key Assumptions for Valid Experiments \emoji{memo}}
@@ -339,6 +509,34 @@ For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-po
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Power Analysis in Practice \emoji{magnifying-glass-tilted-left}}
+
+\begin{enumerate}
+
+    \item \textbf{\blue{Always explore multiple scenarios}} --- not just one power calculation
+    \begin{itemize}
+        \item Jointly optimize: 80\% power + \red{realistic MDE} + acceptable duration
+        \item In 1--2\% MDE territory: proxy metrics, CUPED
+    \end{itemize}
+
+    \item \textbf{\blue{MDE is the most constrained parameter}} --- rarely inflated to compensate
+    \begin{itemize}
+        \item Should reflect \red{minimum business-relevant effect}, not statistical convenience
+        \item If MDE is unrealistic, the experiment probably shouldn't run (quasi-exp instead)
+    \end{itemize}
+
+    \item \textbf{\orange{Heuristics as smart defaults}}
+    \begin{itemize}
+        \item Keep power $\geq$ 80\% (most respected threshold)
+        \item Cap MDE at 5\%; two-tailed tests preferred unless strong prior
+    \end{itemize}
+
+\end{enumerate}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Multiple Comparisons Problem \emoji{fishing-pole}}
 
 \textbf{Problem:} Every test has a 5\% false positive rate by chance. Testing $m$ metrics simultaneously inflates this:
@@ -394,34 +592,6 @@ Optimized sample sizes: {'control': 1093, 'variant_1': 5916, 'variant_2': 5916}
 Achieved power: {'(0, 1)': 0.839, '(0, 2)': 0.986, '(1, 2)': 0.873}
 
 \end{minted}
-
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Power Analysis in Practice \emoji{magnifying-glass-tilted-left}}
-
-\begin{enumerate}
-
-    \item \textbf{\blue{Always explore multiple scenarios}} --- not just one power calculation
-    \begin{itemize}
-        \item Jointly optimize: 80\% power + \red{realistic MDE} + acceptable duration
-        \item In 1--2\% MDE territory: proxy metrics, CUPED
-    \end{itemize}
-
-    \item \textbf{\blue{MDE is the most constrained parameter}} --- rarely inflated to compensate
-    \begin{itemize}
-        \item Should reflect \red{minimum business-relevant effect}, not statistical convenience
-        \item If MDE is unrealistic, the experiment probably shouldn't run (quasi-exp instead)
-    \end{itemize}
-
-    \item \textbf{\orange{Heuristics as smart defaults}}
-    \begin{itemize}
-        \item Keep power $\geq$ 80\% (most respected threshold)
-        \item Cap MDE at 5\%; two-tailed tests preferred unless strong prior
-    \end{itemize}
-
-\end{enumerate}
 
 \end{frame}
 
@@ -539,26 +709,6 @@ Max |SMD|: 0.0107
 \end{minted}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Distribution Assumptions: Don't Overthink It \emoji{brain}}
-
-% \vspace{0.3cm}
-\textbf{Why not useful:}
-\begin{itemize}
-    \item \blue{CLT (Central Limit Theorem):} Sample means $\approx$ normal for large n (>30-50), regardless of distribution
-    \item Normality tests too sensitive; \orange{sampling distribution} matters, not population
-\end{itemize}
-
-\vspace{0.1cm}
-\textbf{What to do:}
-\begin{itemize}
-    \item \textbf{Large samples:} Use standard t-tests / z-tests (rely on CLT)
-    \item \textbf{Small samples/complex metrics:} Use \blue{bootstrapping}
-    \item \textbf{Extreme outliers:} Robust statistics (better models!)
-\end{itemize}
-
-\end{frame}
 
 \section{Analysis}
 
@@ -587,6 +737,26 @@ Max |SMD|: 0.0107
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Distribution Assumptions: Don't Overthink It \emoji{brain}}
+
+% \vspace{0.3cm}
+\textbf{Why not useful:}
+\begin{itemize}
+    \item \blue{CLT (Central Limit Theorem):} Sample means $\approx$ normal for large n (>30-50), regardless of distribution
+    \item Normality tests too sensitive; \orange{sampling distribution} matters, not population
+\end{itemize}
+
+\vspace{0.1cm}
+\textbf{What to do:}
+\begin{itemize}
+    \item \textbf{Large samples:} Use standard t-tests / z-tests (rely on CLT)
+    \item \textbf{Small samples/complex metrics:} Use \blue{bootstrapping}
+    \item \textbf{Extreme outliers:} Robust statistics (better models!)
+\end{itemize}
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Simple analysis \emoji{technologist} (1,500 users/group, 5 pp lift)}
@@ -611,6 +781,7 @@ print(analyzer_simple.results.round(3)[['model_type', 'absolute_effect', 'relati
 1   logistic            0.051            0.153         1.0
 \end{minted}
 \end{frame}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -930,6 +1101,18 @@ print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pv
 \end{frame}
 
 
+\begin{frame}[fragile]{Fixed-Effects Meta-Analysis \emoji{technologist}}
+
+\begin{minted}[fontsize=\tiny]{python}
+fig = analyzer.plot_effects(meta_analysis=True)
+\end{minted}
+
+\begin{center}
+\includegraphics[width=0.60\textwidth]{figures/effect-plot.png}
+\end{center}
+\end{frame}
+
+
 \begin{frame}{Key takeaways \emoji{sparkles}}
 
 \begin{itemize}
@@ -938,34 +1121,6 @@ print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pv
     \item Regression adjustment reduces variance and corrects for imbalances, even with perfect randomization
     \item Non-compliance and confounding can be addressed with ITT, IPW, and IV methods
     \item Meta-analysis allows pooling across multiple experiments
-\end{itemize}
-
-\end{frame}
-
-
-\begin{frame}{Next Steps \& Beyond \emoji{rocket}}
-
-\textbf{\blue{The Inference Cycle}}
-
-\begin{center}
-\scalebox{0.70}{%
-\begin{tikzpicture}[node distance=0.8cm, every node/.style={align=center, font=\tiny}]
-    \node[draw, rounded corners, fill=blue!10] (design) {\textbf{Design}\\randomization,\\power, sampling};
-    \node[draw, rounded corners, fill=orange!10, right=of design] (estimation) {\textbf{Estimation}\\analysis,\\causal inference};
-    \node[draw, rounded corners, fill=red!10, right=of estimation] (optimization) {\textbf{Optimization}\\uplift modeling,\\personalization};
-    \draw[->, thick] (design) -- (estimation);
-    \draw[->, thick] (estimation) -- (optimization);
-    \draw[->, thick, dashed, bend left=30] (optimization) to node[above]{\tiny Feedback} (design);
-\end{tikzpicture}}
-\end{center}
-
-\vspace{0.1cm}
-\textbf{\orange{Other techniques to explore:}}
-\begin{itemize}
-    \item \textbf{Quasi-experimental:} DiD, Synthetic Control, Geo-experiments, ITS
-    \item \textbf{Heterogeneous effects:} Uplift modeling, causal forests (HTE)
-    \item \textbf{Sequential testing:} Always-valid inference, alpha-spending (peeking)
-    \item \textbf{Bayesian experimentation:} Prior incorporation, posterior decision rules
 \end{itemize}
 
 \end{frame}
