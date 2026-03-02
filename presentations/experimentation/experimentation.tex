@@ -144,7 +144,7 @@
 
 \textbf{Key components:}
 \begin{itemize}
-    \item \texttt{ExperimentAnalyzer} - AB test analysis, IV, IPW, regression adjustment, retrodesign
+    \item \texttt{ExperimentAnalyzer} - A/B test analysis, IV, IPW, regression adjustment, retrodesign
     \item \texttt{PowerSim} - Sample size \& power calculations, retrodesign
     \item \texttt{utils} - Balanced random assignment
 \end{itemize}
@@ -465,7 +465,7 @@ For any unit, we only observe \blue{one} potential outcome --- never both
     \item \textbf{Sample size}: Number of units per group
 \end{itemize}
 
-For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-power/}{blog's post on power analysis}}
+For more details, look at: \blue{\href{https://sdaza.com/blog/2025/statistical-power/}{blog's post on power analysis}}
 \end{frame}
 
 
@@ -485,7 +485,7 @@ For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-po
 \end{enumerate}
 
 \vspace{0.2cm}
-\begin{alertblock}{If MDE unreasonable \& limited sample:}
+\begin{alertblock}{If MDE is unreasonable \& sample is limited:}
 \vspace{0.2cm}
 \begin{itemize}
     \item \red{Avoid running under-powered experiments}, risk of winner's curse (exaggerated estimates)
@@ -496,7 +496,7 @@ For more details look at: \blue{\href{https://sdaza.com/blog/2025/statistical-po
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Small Effects + Limited Traffic: What To Do? \emoji{light-bulb}}
+\begin{frame}{Small Effects + Limited Traffic: What to Do? \emoji{light-bulb}}
 
 \begin{enumerate}
     \item \textbf{\blue{Reduce variance}}: CUPED (pre-experiment covariate adjustment), regression adjustment (control for pre-treatment covariates), stratified randomization
@@ -559,7 +559,7 @@ $$P(\text{at least 1 false positive}) = 1 - (1-\alpha)^m \quad \xrightarrow{m=10
 
 \begin{frame}[fragile]{Find Sample Size \& Power \emoji{technologist}}
 
-\texttt{PowerSim} uses a simulation approach, more useful for more complex designs and metrics (compliance, multiple variants, etc.)
+\texttt{PowerSim} uses a simulation approach, more useful for complex designs and metrics (compliance, multiple variants, etc.)
 
 \vspace{1cm}
 \begin{minted}[fontsize=\tiny]{python}
@@ -585,11 +585,13 @@ result = p.find_sample_size(
     baseline=0.10,
     effect=[0.03, 0.05],
     # compliance=0.80,
-    optimize_allocation=True)
+    optimize_allocation=True,
+    tolerance=0.001)
+)
 
-Using sample size 12926 (driven by (0, 1)) 
-Optimized sample sizes: {'control': 1093, 'variant_1': 5916, 'variant_2': 5916}
-Achieved power: {'(0, 1)': 0.839, '(0, 2)': 0.986, '(1, 2)': 0.873}
+Using sample size 10645 (driven by (1, 2)) to ensure ALL comparisons meet target power.
+Optimized sample sizes: {'control': 1190, 'variant_1': 4727, 'variant_2': 4727}
+Achieved power: {'(0, 1)': 0.826, '(0, 2)': 0.994, '(1, 2)': 0.809}
 
 \end{minted}
 
@@ -638,7 +640,7 @@ rr = p.grid_sim_power(baseline_rates=0.25,
 \begin{itemize}
     \item \blue{Random Sampling} - Simple random selection
     \begin{itemize}
-        \item Easy to implement, may result in imbalanced small segments
+        \item Easy to implement; may result in imbalanced small segments
     \end{itemize}
     \item \red{Stratified Sampling} - Sample within dimensions
     \begin{itemize}
@@ -745,7 +747,7 @@ Max |SMD|: 0.0107
 \textbf{Why not useful:}
 \begin{itemize}
     \item \blue{CLT (Central Limit Theorem):} Sample means $\approx$ normal for large n (>30-50), regardless of distribution
-    \item Normality tests too sensitive; \orange{sampling distribution} matters, not population
+    \item Normality tests are too sensitive; \orange{sampling distribution} matters, not population
 \end{itemize}
 
 \vspace{0.1cm}
@@ -841,13 +843,13 @@ final_effect = analyzer_adjusted.results.loc[0, 'absolute_effect']
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Winner's Curse \emoji{skull} (Subsample of 500 users/group)}
 
-\textbf{Problem:} Significant results often \red{overestimate} true effect
+\textbf{Problem:} Significant results often \red{overestimate} the true effect
 
 \vspace{0.2cm}
 \textbf{Why?}
 \begin{itemize}
     \item Selection bias: Only "winners" reported
-    \item Small samples + low power $\rightarrow$ worse exaggeration (2-3x for power < 0.50)
+    \item Small samples + low power $\rightarrow$ greater exaggeration (2-3x for power < 0.50)
 \end{itemize}
 \vspace{0.2cm}
 $$\text{Exaggeration (Type M)} = \left|\frac{\hat{\tau}}{\tau}\right|$$
@@ -909,7 +911,7 @@ print(analyzer_retro.calculate_retrodesign(true_effect=final_effect)[cols])
 \textbf{CS farming meeting} scenario:
 \begin{itemize}
     \item Only a \% of treated users \blue{attend} (one-sided non-compliance)
-    \item Attenders are more engaged, higher baseline revenue (\red{confounding})
+    \item Attendees are more engaged, higher baseline revenue (\red{confounding})
 \end{itemize}
 
 \textbf{How to recover the true effect on bookings?}
@@ -926,7 +928,7 @@ print(analyzer_retro.calculate_retrodesign(true_effect=final_effect)[cols])
 
 \begin{frame}[fragile]{Naive Approach \emoji{teddy-bear}}
 
-\textbf{Naive analysis:} Compare attenders vs non-attenders
+\textbf{Naive analysis:} Compare attendees vs non-attendees
 
 \textbf{True effect} = 5 bookings
 
@@ -1013,14 +1015,18 @@ ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue'
 \end{itemize}
 
 \begin{center}
-\includegraphics[width=0.35\textwidth]{figures/ipw-overlap.png}
+\begin{tabular}{cc}
+\includegraphics[width=0.35\textwidth]{figures/bad-overlap.png} &
+\includegraphics[width=0.35\textwidth]{figures/ipw-overlap.png} \\
+{\small Bad overlap} & {\small Good overlap}
+\end{tabular}
 \end{center}
 \end{frame}
 
 
 \begin{frame}[fragile]{Instrumental Variables (IV) \emoji{key}}
 
-\textbf{IV:} Use assignment as instrument to isolate the effect on compliers (attenders)\\
+\textbf{IV:} Use assignment as instrument to isolate the effect on compliers (attendees)\\
 \small{One-sided non-compliance: LATE $\equiv$ ATT, since there are no always-takers.}
 
 \textbf{True effect} = 5 bookings

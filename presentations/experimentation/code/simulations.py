@@ -19,7 +19,7 @@ p = PowerSim(metric='proportion',
             alpha=0.05,
             alternative='two-tailed',
             comparisons=[(1, 0), (2, 0), (2, 1)],
-            correction='holm',
+            correction=None,
 )
 
 result = p.find_sample_size(
@@ -28,6 +28,7 @@ result = p.find_sample_size(
     effect=[0.03, 0.05],
     # compliance=0.80,
     optimize_allocation=True,
+    tolerance=0.001
 )
 
 # %% multiple simulation of power 
@@ -344,6 +345,7 @@ print(f"\nTrue effect: {true_effect}")
 analyzer.plot_effects(
     meta_analysis=True,
     title="Meta-Analysis of Treatment Effects Across Experiments",
-    show_labels=True    
+    show_values=True, 
+    save_path="../figures/effect-plot.png"
 )
 # %%
