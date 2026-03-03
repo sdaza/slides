@@ -710,7 +710,8 @@ analyzer_simple = ExperimentAnalyzer(
     # correction='sidak',
 )
 analyzer_simple.get_effects()
-print(analyzer_simple.results.round(3)[['model_type', 'absolute_effect', 'relative_effect', 'srm_pvalue']])
+print(analyzer_simple.results.round(3)[[
+    'model_type', 'absolute_effect', 'relative_effect', 'srm_pvalue']])
 
   model_type  absolute_effect  relative_effect  srm_pvalue
 0        ols            0.051            0.153         1.0
@@ -945,7 +946,7 @@ ipw.results[['absolute_effect', 'abs_effect_lower', 'abs_effect_upper', 'pvalue'
 \begin{itemize}
     \item \textbf{Diagnose:} Inspect propensity score distributions by group
     \item \textbf{Trim:} Drop or down-weight units outside common support
-    \item \textbf{Target:} Shift estimand from ATE $\rightarrow$ ATT
+    \item \textbf{Target:} Shift estimand from ATE $\rightarrow$ ATT / ATO
 \end{itemize}
 
 \begin{center}
