@@ -387,7 +387,7 @@ wheels = [
 [[package]]
 name = "experiment-utils-pd"
 version = "0.1.13"
-source = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git?rev=fixing-bugs#72ca0f81b52bd86b70a3c3bb45603478b1b0098e" }
+source = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git?rev=clean-up#f662e153d4b08fd3c620bbf60f347e6e7da1f2ec" }
 dependencies = [
     { name = "build" },
     { name = "ipykernel" },
@@ -1645,7 +1645,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "experiment-utils-pd", git = "ssh://git@github.com/sdaza/experiment-utils-pd.git?rev=fixing-bugs" },
+    { name = "experiment-utils-pd", git = "ssh://git@github.com/sdaza/experiment-utils-pd.git?rev=clean-up" },
     { name = "ipykernel", specifier = ">=7.2.0" },
     { name = "matplotlib", specifier = ">=3.8.0" },
     { name = "numpy", specifier = ">=1.26.0" },

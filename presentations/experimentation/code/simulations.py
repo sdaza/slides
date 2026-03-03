@@ -14,7 +14,7 @@ np.random.seed(42)
 # %% find sample size for 3 variants, 2% absolute effect, 10% baseline, 80% power
 p = PowerSim(metric='proportion',
             relative_effect=False,
-            variants=2, 
+            variants=2,
             nsim=1000,
             alpha=0.05,
             alternative='two-tailed',
@@ -23,12 +23,12 @@ p = PowerSim(metric='proportion',
 )
 
 result = p.find_sample_size(
-    target_power=0.80,
+    power=0.80,
     baseline=0.10,
     effect=[0.03, 0.05],
     # compliance=0.80,
     optimize_allocation=True,
-    tolerance=0.001
+    tolerance=0.0001
 )
 
 # %% multiple simulation of power 
@@ -40,7 +40,7 @@ p = PowerSim(metric='proportion',
 rr = p.grid_sim_power(baseline_rates=0.25,
                 effects=[0.005, 0.01, 0.02, 0.03, 0.04],
                 sample_sizes=[1000, 2000, 3000, 5000, 8000, 10000],
-                hue='effect',
+                color_by='effect',
                 threads=16,
                 plot=True)
 
@@ -99,7 +99,7 @@ analyzer_simple = ExperimentAnalyzer(
     bootstrap=True,
     exp_sample_ratio=0.50,
     outcome_models={'conversion':['ols', 'logistic']},
-    # pvalue_adjustment='sidak',
+    # correction='sidak',
 )
 
 analyzer_simple.get_effects()
@@ -166,7 +166,7 @@ print(analyzer_retro.calculate_retrodesign(true_effect=final_effect)[cols])
 # %% checking power estimation consistency
 p = PowerSim(metric='proportion',
             relative_effect=False,
-            variants=1, 
+            variants=1,
             nsim=1000,
             alpha=0.05,
             alternative='two-tailed',
@@ -348,4 +348,3 @@ analyzer.plot_effects(
     show_values=True, 
     save_path="../figures/effect-plot.png"
 )
-# %%

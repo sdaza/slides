@@ -207,13 +207,13 @@ $P(Y \mid X)$ --- \textit{``Given I observe X, what is Y likely to be?''}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{The Data Validity Cliff \emoji{warning}}
 
-The name captures the idea: your data has \blue{solid validity} for prediction --- then you \red{step off a cliff} the moment you use it to justify an intervention.
+Your data has \blue{solid validity} for prediction --- then you \red{step off a cliff} the moment you use it to justify an intervention.
 
 \vspace{0.08cm}
 {\small The cliff is confounding: $P(Y \mid X) \neq P(Y \mid do(X))$ --- your model learned \emph{who} tends to have high $Y$, not \emph{what causes} $Y$ to change}
 
 \vspace{0.12cm}
-\textbf{Classic fall: Selection vs.\ Policy}
+\textbf{Selection vs.\ Policy}
 \begin{itemize}\setlength{\itemsep}{0.04cm}
     \item \textbf{Observation:} \textit{``Users who adopt Feature X have 40\% higher engagement''}
     \item \textbf{Decision:} Ship Feature X to everyone $\rightarrow$ engagement will rise
@@ -227,7 +227,8 @@ The name captures the idea: your data has \blue{solid validity} for prediction -
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Rung 2 --- The Baby: Doing \& Deciding \emoji{test-tube}}
 
-$P(Y \mid do(X))$ --- \textit{``What happens if we intervene?''} \quad \orange{\textbf{Business decisions live here}}
+$P(Y \mid do(X))$ --- \textit{``What happens if we intervene?''}  \\
+\orange{\textbf{Business decisions live here}}
 
 \vspace{0.15cm}
 \begin{itemize}\setlength{\itemsep}{0.08cm}
@@ -239,7 +240,7 @@ $P(Y \mid do(X))$ --- \textit{``What happens if we intervene?''} \quad \orange{\
 \textbf{When you can't experiment $\rightarrow$ Identification:}
 \begin{itemize}\setlength{\itemsep}{0.05cm}
     \item Build a bridge: $P(Y \mid X) \rightarrow P(Y \mid do(X))$ using assumptions
-    \item Tools: DiD, IV, regression discontinuity, synthetic control
+    \item \orange{\textbf{Tools:}} DiD, IV, IPW, regression discontinuity, synthetic control
     \item \red{\textbf{The data can never give you the assumptions}} --- they come from theory
 \end{itemize}
 
@@ -266,79 +267,6 @@ $P(Y \mid do(X))$ --- \textit{``What happens if we intervene?''} \quad \orange{\
 
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{Putting It Together: Doctor Onboarding \(\rightarrow\) Bookings \emoji{clipboard}}
-
-% \begin{itemize}\setlength{\itemsep}{0.15cm}
-%     \item \blue{\textbf{Rung 1 (Owl):}} \textit{``Doctors who complete onboarding have 35\% more bookings''} \\
-%           {\footnotesize Selection bias: motivated doctors do both --- $P(\text{bookings} \mid \text{onboarding})$}
-
-%     \item \orange{\textbf{Rung 2 (Baby):}} \textit{``The new flow caused a $+6\%$ lift in bookings''} \\
-%           {\footnotesize A/B test or DiD $\Rightarrow$ ATE --- $P(\text{bookings} \mid do(\text{onboarding}))$}
-
-%     \item \red{\textbf{Rung 3 (Scientist):}} \textit{``Would Dr.~\#47291 have reached 5 bookings/week without it?''} \\
-%           {\footnotesize ITE / uplift model --- strong structural assumptions required}
-% \end{itemize}
-
-% \end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{How Stakeholders Talk --- and the Tough Conversation \emoji{speech-balloon}}
-
-% \begin{itemize}\setlength{\itemsep}{0.1cm}
-
-%     \item \blue{\textbf{Rung 1}} {\footnotesize\red{(sounds causal, but isn't)}}
-%     \begin{itemize}\setlength{\itemsep}{0.01cm}
-%         \item[] \small\textit{``Onboarding \textbf{drives} bookings'' / ``X is a key \textbf{lever} for retention''}
-%         \item[] \small\blue{These are associations --- push back when stakeholders claim causality}
-%     \end{itemize}
-
-%     \item \orange{\textbf{Rung 2}} {\footnotesize(valid only after a controlled experiment)}
-%     \begin{itemize}\setlength{\itemsep}{0.01cm}
-%         \item[] \small\textit{``The new flow \textbf{caused} a $+6\%$ \textbf{lift}'' / ``measure the \textbf{impact}''}
-%     \end{itemize}
-
-%     \item \red{\textbf{Rung 3}}
-%     \begin{itemize}\setlength{\itemsep}{0.01cm}
-%         \item[] \small\textit{``Would they have churned \textbf{anyway}?'' / ``How much was \textbf{incremental}?''}
-%         \item[] \small\textit{``Does our mobile result apply to desktop?''} {\footnotesize--- transportability}
-%         \item[] \small\orange{Needs theory + structural model, not just more data}
-%     \end{itemize}
-
-% \end{itemize}
-
-% \end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{frame}{What is the Role of Uplift Modeling? \emoji{chart-increasing}}
-
-% \begin{center}
-% A/B test $\rightarrow$ \blue{\textbf{ATE}}: does the treatment work \emph{on average}? \\[0.04cm]
-% Uplift model $\rightarrow$ \orange{\textbf{CATE}}: for \emph{whom} does it work?
-% \end{center}
-
-% \vspace{0.04cm}
-% \textbf{Still Rung 2 fundamentally} --- needs A/B data to train \\
-% {\small Gets closer to Rung 3 thinking: estimating heterogeneous effects}
-
-% \vspace{0.08cm}
-% \textbf{Target the ``persuadables'':}
-% \begin{itemize}\setlength{\itemsep}{0.02cm}
-%     \item \blue{Always-takers}: convert regardless $\rightarrow$ no incremental value
-%     \item \red{Never-takers}: won't convert $\rightarrow$ wasted resources
-%     \item \orange{Persuadables}: respond to treatment $\rightarrow$ \textbf{target these}
-% \end{itemize}
-
-% \vspace{0.04cm}
-% {\small \red{Caveat:} Individual counterfactual still unobservable --- strong assumptions required for validation}
-
-% \end{frame}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -348,9 +276,9 @@ For any unit, we only observe \blue{one} potential outcome --- never both
 
 \vspace{0.1cm}
 \begin{itemize}\setlength{\itemsep}{0.05cm}
-    \item Dr.~\#47291 got the new onboarding flow $\rightarrow$ 8 bookings/week
+    \item Dr. X got the new onboarding flow $\rightarrow$ 8 bookings/week
     \item We \red{cannot} observe: same doctor with the old flow $\rightarrow$ \textbf{?}
-    \item \red{Individual causal effects are unobservable} (Rung 3 territory)
+    \item \red{Individual causal effects are unobservable}
 \end{itemize}
 
 \vspace{0.1cm}
@@ -359,11 +287,9 @@ For any unit, we only observe \blue{one} potential outcome --- never both
 \vspace{0.05cm}
 \begin{itemize}\setlength{\itemsep}{0.05cm}
     \item \orange{A/B test}: random assignment creates a counterfactual group
-    \item \blue{Quasi-experiments} (DiD, IV, RD): when randomization is not possible
 \end{itemize}
 
 \end{frame}
-
 
 
 \begin{frame}{Key Assumptions for Valid Experiments \emoji{memo}}
@@ -371,7 +297,7 @@ For any unit, we only observe \blue{one} potential outcome --- never both
 \begin{enumerate}
     \item \textbf{\blue{Independence (Randomization)}}
     \begin{itemize}
-        \item Random treatment assignment creates exchangeable groups
+        \item Random treatment assignment creates \orange{exchangeable} groups
     \end{itemize}
 
     \item \textbf{\orange{Stable Unit Treatment Value Assumption (SUTVA)}}
@@ -426,26 +352,26 @@ For any unit, we only observe \blue{one} potential outcome --- never both
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Estimand, Estimator, Estimate \emoji{dart}}
+% \begin{frame}{Estimand, Estimator, Estimate \emoji{dart}}
 
-\begin{description}[leftmargin=0pt]
-    \item[\blue{Estimand}] \textbf{What} we want to know --- the target quantity
-    \begin{itemize}
-        \item \textit{E.g.,} ATE: $\mathbb{E}[Y(1) - Y(0)]$; also ATT (on the treated), LATE (on compliers)
-    \end{itemize}
+% \begin{description}[leftmargin=0pt]
+%     \item[\blue{Estimand}] \textbf{What} we want to know --- the target quantity
+%     \begin{itemize}
+%         \item \textit{E.g.,} ATE: $\mathbb{E}[Y(1) - Y(0)]$; also ATT (on the treated), LATE (on compliers)
+%     \end{itemize}
 
-    \item[\orange{Estimator}] \textbf{How} we compute it --- the method or formula
-    \begin{itemize}
-        \item \textit{E.g.,} difference in means, OLS, IPW --- same estimand can have multiple estimators
-    \end{itemize}
+%     \item[\orange{Estimator}] \textbf{How} we compute it --- the method or formula
+%     \begin{itemize}
+%         \item \textit{E.g.,} difference in means, OLS, IPW --- same estimand can have multiple estimators
+%     \end{itemize}
 
-    \item[\red{Estimate}] \textbf{What we get} --- the actual number from our data
-    \begin{itemize}
-        \item \textit{E.g.,} $\hat{\tau} = +0.056$ (5.6 pp lift); always comes with a standard error
-    \end{itemize}
-\end{description}
+%     \item[\red{Estimate}] \textbf{What we get} --- the actual number from our data
+%     \begin{itemize}
+%         \item \textit{E.g.,} $\hat{\tau} = +0.056$ (5.6 pp lift); always comes with a standard error
+%     \end{itemize}
+% \end{description}
 
-\end{frame}
+% \end{frame}
 
 \section{Power Analysis \& Sample Size}
 
@@ -453,15 +379,21 @@ For any unit, we only observe \blue{one} potential outcome --- never both
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Power \emoji{muscle}}
 
-\textbf{Statistical Power} = Probability of detecting an effect when it exists
+\textbf{Power} = Probability of detecting an effect when it exists
 
 \vspace{0.3cm}
-\textbf{Key components:}
+\textbf{Definition}
 \begin{itemize}
     \item \red{$\alpha$} (Type I error): False positive rate, typically 0.05
     \item \blue{$\beta$} (Type II error): False negative rate, typically 0.20
     \item \orange{Power} = $1 - \beta$, typically 0.80 (80\%)
-    \item \textbf{Effect size}: Magnitude of difference
+\end{itemize}
+
+\textbf{Input we need to calculate power:}
+\begin{itemize}
+    \item \red{\textbf{Expected effect size}} \emoji{person-climbing}: Magnitude of difference
+    \item \textbf{Variance}: Variability of the outcome metric
+    \item \textbf{Significance level}: Threshold for statistical significance
     \item \textbf{Sample size}: Number of units per group
 \end{itemize}
 
@@ -473,18 +405,17 @@ For more details, look at: \blue{\href{https://sdaza.com/blog/2025/statistical-p
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Minimum Detectable Effect (MDE) \emoji{magnifying-glass-tilted-right}}
 
-\textbf{MDE} = \blue{Smallest effect size} reliably detected at 80\% power, $\alpha$ = 0.05, given sample size
+\textbf{MDE} = \blue{Smallest effect size} reliably detected at 80\% power, $\alpha$ = 0.05, and sample $n$.
 
-\vspace{0.2cm}
+\vspace{0.05cm}
 \textbf{\orange{How to define MDE:}}
-
 \begin{enumerate}
-    \item \textbf{Business:} Minimum effect for ROI (e.g., 2\% revenue lift)
+ \vspace{0.1cm}
+    \item \textbf{Historical:} Based on past experiments and benchmarks (typically 1-5\%)
     \item \textbf{Resource-constrained:} Achievable with sample (e.g., 50K users $\rightarrow$ 3\% MDE)
-    \item \textbf{Historical:} Based on past experiments (typically 1-5\%)
 \end{enumerate}
 
-\vspace{0.2cm}
+\vspace{0.1cm}
 \begin{alertblock}{If MDE is unreasonable \& sample is limited:}
 \vspace{0.2cm}
 \begin{itemize}
@@ -502,8 +433,8 @@ For more details, look at: \blue{\href{https://sdaza.com/blog/2025/statistical-p
     \item \textbf{\blue{Reduce variance}}: CUPED (pre-experiment covariate adjustment), regression adjustment (control for pre-treatment covariates), stratified randomization
     \item \textbf{\orange{Use sensitive metrics}}: surrogate/proxy metrics
     \item \textbf{\blue{Redesign experiment}}: within-subjects, responsive subpopulations, longer duration
-    \item \textbf{\orange{Accumulate evidence}}: meta-analysis
-    \item \textbf{\red{Go quasi-experimental}}: DiD (Difference-in-Differences), Synthetic Control, Geo-experiments, Interrupted Time Series
+    \item \textbf{\orange{Accumulate evidence}}: Meta-analysis (pooled experiments)
+    \item \textbf{\red{Go quasi-experimental}}: DiD, IPW, Synthetic Control, Geo-experiments, Interrupted Time Series
 \end{enumerate}
 
 \end{frame}
@@ -518,12 +449,15 @@ For more details, look at: \blue{\href{https://sdaza.com/blog/2025/statistical-p
         \item Jointly optimize: 80\% power + \red{realistic MDE} + acceptable duration
         \item In 1--2\% MDE territory: proxy metrics, CUPED
     \end{itemize}
+    \vspace{0.2cm}
 
     \item \textbf{\blue{MDE is the most constrained parameter}} --- rarely inflated to compensate
     \begin{itemize}
         \item Should reflect \red{minimum business-relevant effect}, not statistical convenience
         \item If MDE is unrealistic, the experiment probably shouldn't run (quasi-exp instead)
     \end{itemize}
+
+    \vspace{0.2cm}
 
     \item \textbf{\orange{Heuristics as smart defaults}}
     \begin{itemize}
@@ -539,7 +473,7 @@ For more details, look at: \blue{\href{https://sdaza.com/blog/2025/statistical-p
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Multiple Comparisons Problem \emoji{fishing-pole}}
 
-\textbf{Problem:} Every test has a 5\% false positive rate by chance. Testing $m$ metrics simultaneously inflates this:
+\textbf{Problem:} Every test has a 5\% false positive rate by chance. Testing $m$ metrics/variants simultaneously inflates this:
 
 $$P(\text{at least 1 false positive}) = 1 - (1-\alpha)^m \quad \xrightarrow{m=10} \quad \approx 40\%$$
 
@@ -581,17 +515,17 @@ p = PowerSim(metric='proportion',
 
 \begin{minted}[fontsize=\tiny]{python}
 result = p.find_sample_size(
-    target_power=0.80,
+    power=0.80,
     baseline=0.10,
     effect=[0.03, 0.05],
     # compliance=0.80,
     optimize_allocation=True,
-    tolerance=0.001)
+    tolerance=0.0001)
 )
 
-Using sample size 10645 (driven by (1, 2)) to ensure ALL comparisons meet target power.
-Optimized sample sizes: {'control': 1190, 'variant_1': 4727, 'variant_2': 4727}
-Achieved power: {'(0, 1)': 0.826, '(0, 2)': 0.994, '(1, 2)': 0.809}
+Using sample size 10778 (driven by (1, 2))
+Optimized sample sizes: {'control': 1167, 'variant_1': 4805, 'variant_2': 4805}
+Achieved power: {'(0, 1)': 0.815, '(0, 2)': 0.994, '(1, 2)': 0.808}
 
 \end{minted}
 
@@ -610,7 +544,7 @@ p = PowerSim(metric='proportion',
 rr = p.grid_sim_power(baseline_rates=0.25,
                 effects=[0.005, 0.01, 0.02, 0.03, 0.04],
                 sample_sizes=[1000, 2000, 3000, 5000, 8000, 10000],
-                hue='effect',
+                color_by='effect',
                 threads=16,
                 plot=True)
 \end{minted}
@@ -773,7 +707,7 @@ analyzer_simple = ExperimentAnalyzer(
     bootstrap=True,
     exp_sample_ratio=0.50,
     outcome_models={'conversion':['ols', 'logistic']},
-    # pvalue_adjustment='sidak',
+    # correction='sidak',
 )
 analyzer_simple.get_effects()
 print(analyzer_simple.results.round(3)[['model_type', 'absolute_effect', 'relative_effect', 'srm_pvalue']])
@@ -1097,11 +1031,11 @@ analyzer.get_effects()
 pooled = analyzer.combine_effects(grouping_cols=["outcome"])
 print(pooled[["outcome", "experiments", "absolute_effect", "standard_error", "pvalue"]])
       outcome  experiments  absolute_effect  standard_error    pvalue
-   conversion          5.0           0.0600          0.0114  1.54e-07
+0  conversion          5.0          0.05144        0.011513  0.000008
 
 # True effect = 0.05
 # Naive pooled  = 0.14  <-- 2.9x overestimate
-# Meta-analysis = 0.06  <-- recovers true effect
+# Meta-analysis = 0.05  <-- recovers true effect
 \end{minted}
 
 \end{frame}

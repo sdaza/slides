@@ -25,7 +25,7 @@ dev = [
 package = false  # This is a workspace, not a distributable package
 
 [tool.uv.sources]
-experiment-utils-pd = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git", rev = "fixing-bugs" }
+experiment-utils-pd = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git", rev = "clean-up" }
 # experiment-utils-pd = { git = "ssh://git@github.com/sdaza/experiment-utils-pd.git", rev = "cov-adjustments" }
 
 [tool.ruff]
